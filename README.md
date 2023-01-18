@@ -1,1 +1,3 @@
-# open-library-book-reader
+# OpenLibrary Book Reader
+
+[Proposal](proposal/proposal.md)

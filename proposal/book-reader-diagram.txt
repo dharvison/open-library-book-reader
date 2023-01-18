@@ -1,0 +1,31 @@
+# quickdatabasediagrams.com
+
+User
+-
+id PK serial
+username text
+password hash
+bio text
+picture url
+
+Booklist
+-
+id PK serial
+user_id FK >- User.id
+blurb text
+books list(ISBN) FK >- Book.isbn
+
+Book
+-
+isbn PK
+title
+author
+cover_url
+genre
+
+BookNotes
+-
+user_id FK >- User.id
+isbn FK >- Book.isbn
+read boolean
+note text
