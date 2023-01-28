@@ -1,0 +1,12 @@
+bcrypt
+email_validator
+Flask
+Flask-Bcrypt
+Flask-DebugToolbar
+Flask-SQLAlchemy
+Flask-WTF
+ipython
+psycopg2-binary
+python-dateutil
+SQLAlchemy
+text-unidecode
