@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block body_class %}profile{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+        <h2 class="welcome">Welcome {{ g.user.username }}!</h2>
+        <h3>Your Lists!</h3>
+        {% if g.user.lists|length > 0 %}
+            <ul>
+                {% for booklist in g.user.lists %}
+                    <li>{{ booklist.title }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h5>You don't have any lists <i class="fa-solid fa-face-frown-open"></i></h5>
+        {% endif%}
+        <a href="#" class="btn btn-primary">Create a list</a>
+
+        <h3>Your Notes!</h3>
+        {% if g.user.notes|length > 0 %}
+            <ul>
+                {% for note in g.user.notes %}
+                    <li>{{ note.book.title }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h5>You don't have any notes <i class="fa-solid fa-face-frown-open"></i></h5>
+        {% endif%}
+        <a href="#" class="btn btn-primary">Create a note</a>
+    </div>
+</div>
+
+{% endblock %}

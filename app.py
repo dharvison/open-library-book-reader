@@ -4,8 +4,9 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import connect_db, User
+from models import db, connect_db, User
 from forms import UserRegisterForm, LoginForm
+from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
 
@@ -22,9 +23,9 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 # toolbar = DebugToolbarExtension(app)
 
-connect_db(app)
-# with app.app_context():
-#     seed_data(db)
+with app.app_context():
+    connect_db(app)
+    seed_data(db)
 
 #
 # User actions
@@ -44,14 +45,14 @@ def add_user_to_g():
 def do_login(user):
     """Log in user."""
 
-    session[CURR_USER_KEY] = user.id
+    session[CUR_USER_KEY] = user.id
 
 
 def do_logout():
     """Logout user."""
 
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
+    if CUR_USER_KEY in session:
+        del session[CUR_USER_KEY]
 
 #
 # Signup and Login routes
@@ -77,7 +78,6 @@ def signup():
                 username=register_form.username.data,
                 password=register_form.password.data,
                 email=register_form.email.data,
-                image_url=register_form.image_url.data or User.image_url.default.arg,
             )
             db.session.commit()
 
@@ -120,3 +120,32 @@ def logout():
     do_logout()
     flash("Logged out!", "success")
     return redirect(url_for("login"))
+
+#
+# "Public" routes
+#
+
+@app.route('/')
+def home():
+    """If authenticated, show list home. Otherwise prompt to sign up"""
+
+    if g.user:
+        return render_template('index.html')
+
+    else:
+        return render_template('anon-index.html')
+
+
+#
+# Authenticated Routes
+#
+
+@app.route('/profile')
+def show_profile():
+    """Show logged in user profile"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    return render_template("/users/profile.html", user_id=g.user.id)

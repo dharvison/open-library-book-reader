@@ -19,22 +19,9 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-    )
-
-    email = db.Column(
-        db.Text,
-        nullable=False,
-        unique=True,
-    )
-
-    username = db.Column(
-        db.Text,
-        nullable=False,
-        unique=True,
-    )
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.Text, nullable=False, unique=True)
+    username = db.Column(db.Text, nullable=False, unique=True)
 
     # image_url = db.Column(
     #     db.Text,
@@ -46,57 +33,17 @@ class User(db.Model):
     #     default="/static/images/warbler-hero.jpg"
     # )
 
-    bio = db.Column(
-        db.Text,
-    )
+    bio = db.Column(db.Text)
+    location = db.Column(db.Text)
+    password = db.Column(db.Text, nullable=False)
 
-    location = db.Column(
-        db.Text,
-    )
-
-    password = db.Column(
-        db.Text,
-        nullable=False,
-    )
-
-    # messages = db.relationship('Message')
-
-    # followers = db.relationship(
-    #     "User",
-    #     secondary="follows",
-    #     primaryjoin=(Follows.user_being_followed_id == id),
-    #     secondaryjoin=(Follows.user_following_id == id)
-    # )
-
-    # following = db.relationship(
-    #     "User",
-    #     secondary="follows",
-    #     primaryjoin=(Follows.user_following_id == id),
-    #     secondaryjoin=(Follows.user_being_followed_id == id)
-    # )
-
-    # likes = db.relationship(
-    #     'Message',
-    #     secondary="likes"
-    # )
+    is_admin = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
 
-    # def is_followed_by(self, other_user):
-    #     """Is this user followed by `other_user`?"""
-
-    #     found_user_list = [user for user in self.followers if user == other_user]
-    #     return len(found_user_list) == 1
-
-    # def is_following(self, other_user):
-    #     """Is this user following `other_use`?"""
-
-    #     found_user_list = [user for user in self.following if user == other_user]
-    #     return len(found_user_list) == 1
-
     @classmethod
-    def signup(cls, username, email, password, image_url):
+    def signup(cls, username, email, password):
         """Sign up user.
 
         Hashes password and adds user to system.
@@ -108,7 +55,6 @@ class User(db.Model):
             username=username,
             email=email,
             password=hashed_pwd,
-            image_url=image_url,
         )
 
         db.session.add(user)
@@ -133,3 +79,86 @@ class User(db.Model):
                 return user
 
         return False
+
+
+class Book(db.Model):
+    """Book in the system."""
+
+    __tablename__ = 'books'
+
+    isbn = db.Column(db.Text, primary_key=True)
+
+    title = db.Column(db.Text, nullable=False)
+    author = db.Column(db.Text, nullable=False)
+    cover_url = db.Column(db.Text) # Need a default blank cover
+    # else needs to be cached?
+
+    def display_book(self):
+        """Title by Author"""
+
+        return f"{self.title} by {self.author}"
+
+    def __repr__(self):
+        return f"<Book #{self.isbn}: {self.title}, {self.author}>"
+
+
+class BookNote(db.Model):
+    """User's notes on a given Book"""
+
+    ___tablename__ = 'booknotes'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    book_isbn = db.Column(
+        db.Text,
+        db.ForeignKey('books.isbn', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    read = db.Column(db.Boolean, default=False)
+    note = db.Column(db.Text)
+
+    user = db.relationship("User", backref="notes")
+    book = db.relationship("Book") # probably don't need link from Book to Notes
+
+
+class BookList(db.Model):
+    """User list of Books"""
+
+    __tablename__ = 'booklists'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    title = db.Column(db.Text)
+    blurb = db.Column(db.Text)
+
+    books = db.relationship("Book", secondary="booklist_books", backref="lists")
+    user = db.relationship("User", backref="lists")
+
+
+class BookListBooks(db.Model):
+    """Booklist and book relations"""
+
+    __tablename__ = 'booklist_books'
+
+    booklist = db.Column(
+        db.Integer,
+        db.ForeignKey('booklists.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+
+    book_isbn = db.Column(
+        db.Text,
+        db.ForeignKey('books.isbn', ondelete='CASCADE'),
+        primary_key=True,
+    )
