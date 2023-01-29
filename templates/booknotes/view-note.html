@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block body_class %}note{% endblock %}
+
+{% block content %}
+
+  <div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h2>Notes for {{ note.book.title }}</h2>
+
+      {% if note.user_id == g.user.id %}
+        <form>
+          <button class="btn btn-primary btn-lg"
+                  formaction="/notes/{{ note.id }}/edit">Edit</button>
+          <button class="btn btn-outline-danger btn-lg"
+                  formaction="/notes/{{ note.id }}/delete"
+                  formmethod="POST">Delete</button> <!-- Confirmation TODO -->
+        </form>
+      {% endif %}
+
+      <p>Read book: {{ note.read }}</p>
+      
+      <p>{{ note.note }}</p>
+
+      <a href="#">Link to the book or something TODO</a>
+      
+    </div>
+  </div>
+
+{% endblock %}

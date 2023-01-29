@@ -48,23 +48,13 @@
               <li class="nav-item">
                 <a class="nav-link disabled">Disabled</a>
               </li>
-              <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <form class="d-flex" role="search" action="/search">
+                <input name="term" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Search</button>
               </form>
             </ul>
             
             <ul class="nav navbar-nav navbar-right">
-                {% if request.endpoint != None %}
-                <!-- <li>
-                  <form class="navbar-form navbar-right" action="/users">
-                    <input name="q" class="form-control" placeholder="Search Warbler" id="search">
-                    <button class="btn btn-default">
-                      <span class="fa fa-search"></span>
-                    </button>
-                  </form>
-                </li> -->
-                {% endif %}
                 {% if not g.user %}
                 <li class="nav-item">
                     <a class="nav-link" href="/signup">Sign up</a>
@@ -77,12 +67,7 @@
                   <a class="nav-link" href="/profile">
                     <i class="fa-solid fa-book-open-reader"></i>
                     <span class="username">{{ g.user.username }}</span>
-                    <!-- <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}"> -->
                   </a>
-                </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="/messages/new">New Message</a>
-                </li> -->
                 <li class="nav-item">
                     <a class="nav-link" href="/logout">Log out</a>
                 </li>

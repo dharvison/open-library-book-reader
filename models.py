@@ -105,7 +105,7 @@ class Book(db.Model):
 class BookNote(db.Model):
     """User's notes on a given Book"""
 
-    ___tablename__ = 'booknotes'
+    __tablename__ = 'booknotes'
 
     id = db.Column(db.Integer, primary_key=True)
 

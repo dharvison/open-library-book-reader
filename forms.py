@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -24,7 +24,19 @@ class UserEditForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=6)])
-    image_url = StringField('Image URL')
-    header_image_url = StringField('Header Image URL')
-    location = StringField('Location')
     bio = TextAreaField('Bio')
+
+
+class CreateEditBooklistForm(FlaskForm):
+    """Form to create or edit a booklist."""
+
+    title = StringField('Title', validators=[DataRequired()])
+    blurb = TextAreaField('Description')
+
+
+class CreateEditNoteForm(FlaskForm):
+    """Form to create or edit a note."""
+
+    read = BooleanField('Read')
+    note = TextAreaField('Note')
+

@@ -1,3 +1,3 @@
-#user_form > .form-control, #user_form > button {
+.form-group, .btn-lg {
     margin-top: 1rem;
 }

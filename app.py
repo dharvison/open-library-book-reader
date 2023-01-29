@@ -4,8 +4,9 @@ from flask import Flask, render_template, request, flash, redirect, session, g, 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db, User
-from forms import UserRegisterForm, LoginForm
+from models import db, connect_db, User, Book, BookNote, BookList
+from forms import UserRegisterForm, UserEditForm, LoginForm, CreateEditBooklistForm, CreateEditNoteForm
+from open_library import qd_search
 from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
@@ -137,7 +138,7 @@ def home():
 
 
 #
-# Authenticated Routes
+# Profile Routes
 #
 
 @app.route('/profile')
@@ -149,3 +150,211 @@ def show_profile():
         return redirect("/")
     
     return render_template("/users/profile.html", user_id=g.user.id)
+
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+def edit_profile():
+    """Edit logged in user profile"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    profile_form = UserEditForm(obj=g.user)
+    if profile_form.validate_on_submit():
+        profile_form.populate_obj(g.user)
+        db.session.commit()
+
+        return redirect(url_for("show_profile"))
+    
+    return render_template("/users/edit-profile.html", form=profile_form, user_id=g.user.id)
+
+
+@app.route('/profile/delete', methods=['POST']) # Maybe DELETE?
+def delete_profile():
+    """Delete the logged in user"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    db.session.delete(g.user)
+    db.session.commit()
+    
+    return redirect(url_for("logout"))
+
+
+#
+# Booklist Routes
+#
+
+@app.route('/lists/create', methods=['GET', 'POST'])
+def create_booklist():
+    """Create Booklist"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    list_form = CreateEditBooklistForm()
+    if list_form.validate_on_submit():
+        new_list = BookList()
+        new_list.user_id = g.user.id
+        list_form.populate_obj(new_list)
+
+        db.session.add(new_list)
+        db.session.commit()
+
+        return redirect(url_for("show_booklist", list_id=new_list.id))
+    
+    return render_template("/booklists/create-list.html", form=list_form)
+
+
+@app.route('/lists/<int:list_id>')
+def show_booklist(list_id):
+    """Display the list"""
+
+    booklist = BookList.query.get_or_404(list_id)
+    return render_template("/booklists/view-list.html", booklist=booklist)
+
+
+@app.route('/lists/<int:list_id>/edit', methods=['GET', 'POST'])
+def edit_booklist(list_id):
+    """Edit Booklist"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    edit_list = BookList.query.get_or_404(list_id)
+    if edit_list.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    list_form = CreateEditBooklistForm(obj=edit_list)
+    if list_form.validate_on_submit():
+        list_form.populate_obj(edit_list)
+        db.session.commit()
+
+        return redirect(url_for("show_booklist", list_id=edit_list.id))
+    
+    return render_template("/booklists/edit-list.html", form=list_form, booklist=edit_list)
+
+
+@app.route('/lists/<int:list_id>/delete', methods=['POST']) # Maybe DELETE?
+def delete_booklist(list_id):
+    """Delete the list"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    delete_list = BookList.query.get_or_404(list_id)
+    if delete_list.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    db.session.delete(delete_list)
+    db.session.commit()
+    
+    return redirect(url_for("show_profile"))
+
+
+#
+# BookNote Routes
+#
+
+@app.route('/notes/create', methods=['GET', 'POST'])
+def create_note():
+    """Create BookNote"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    note_form = CreateEditNoteForm()
+    if note_form.validate_on_submit():
+        new_note = BookNote()
+        new_note.user_id = g.user.id
+        new_note.book_isbn = "12345" # TODO
+        note_form.populate_obj(new_note)
+
+        db.session.add(new_note)
+        db.session.commit()
+
+        return redirect(url_for("show_note", note_id=new_note.id))
+    
+    return render_template("/booknotes/create-note.html", form=note_form)
+
+
+@app.route('/notes/<int:note_id>')
+def show_note(note_id):
+    """Display the BookNote"""
+
+    note = BookNote.query.get_or_404(note_id)
+    return render_template("/booknotes/view-note.html", note=note)
+
+
+@app.route('/notes/<int:note_id>/edit', methods=['GET', 'POST'])
+def edit_note(note_id):
+    """Edit BookNote"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    edit_note = BookNote.query.get_or_404(note_id)
+    if edit_note.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    note_form = CreateEditNoteForm(obj=edit_note)
+    if note_form.validate_on_submit():
+        note_form.populate_obj(edit_note)
+        db.session.commit()
+
+        return redirect(url_for("show_note", note_id=edit_note.id))
+    
+    return render_template("/booknotes/edit-note.html", form=note_form, note=edit_note)
+
+
+@app.route('/notes/<int:note_id>/delete', methods=['POST']) # Maybe DELETE?
+def delete_note(note_id):
+    """Delete the BookNote"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    delete_note = BookNote.query.get_or_404(note_id)
+    if delete_note.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    db.session.delete(delete_note)
+    db.session.commit()
+    
+    return redirect(url_for("show_profile"))
+
+
+#
+# Book and Search
+#
+
+@app.route('/search/<term>')
+def do_search_url(term):
+    """qd_search"""
+
+    json = qd_search(term)
+
+    return render_template("search.html", term=term, results=json)
+
+@app.route('/search')
+def do_search():
+    """qd_search"""
+
+    term = request.args.get("term")
+    json = qd_search(term)
+
+    return render_template("search.html", term=term, results=json)
+
