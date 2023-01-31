@@ -18,6 +18,19 @@ def seed_data(db):
 
     db.session.commit()
 
+    l1 = BookList(
+        title = "Sample List",
+        blurb = "Description of the list",
+        user_id = test_user.id,
+    )
+
+    l2 = BookList(
+        title = "A Second List",
+        blurb = "For when 1 list isn't enough!",
+        user_id = test_user.id,
+    )
+
+    db.session.add_all([l1, l2])
 
     # dummy books
     b1 = Book(

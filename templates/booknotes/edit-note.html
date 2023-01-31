@@ -11,7 +11,9 @@
       <form method="POST" id="note_form">
         {% include '_form.html' %}
 
-        <button class="btn btn-primary btn-block btn-lg">Edit Note</button>
+        <button class="btn btn-primary mt-3">Edit Note</button>
+        <button class="btn btn-outline-danger mt-3"
+                formaction="/notes/{{ note.id }}/delete">Delete</button> <!-- Confirmation TODO -->
       </form>
     </div>
   </div>

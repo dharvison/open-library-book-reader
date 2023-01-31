@@ -11,7 +11,9 @@
       <form method="POST" id="list_form">
         {% include '_form.html' %}
 
-        <button class="btn btn-primary btn-block btn-lg">Edit List</button>
+        <button class="btn btn-primary mt-3">Edit List</button>
+        <button class="btn btn-outline-danger mt-3"
+            formaction="/lists/{{ booklist.id }}/delete">Delete</button> <!-- Confirmation TODO -->
       </form>
     </div>
   </div>

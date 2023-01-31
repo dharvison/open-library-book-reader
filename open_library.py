@@ -49,7 +49,7 @@ def parse_data(work):
         'author_name': author_name[0] if len(author_name) > 0 else None,
         'author_key': author_key[0] if len(author_key) > 0 else None,
         'publish_date': publish_date[0] if len(publish_date) > 0 else None,
-        'cover_url': f"{COVER_URL}{cover_edition_key}{COVER_S_POSTFIX}",
+        'cover_url': f"{COVER_URL}{cover_edition_key}{COVER_S_POSTFIX}" if cover_edition_key != None else None,
         'lending_edition_s': lending_edition_s,
         'book_url': book_url,
     }

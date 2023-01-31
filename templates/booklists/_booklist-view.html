@@ -1,0 +1,19 @@
+<h2>{{ booklist.title }}
+{% if booklist.user_id == g.user.id %}
+    <a class="btn btn-outline-primary btn-sm mb-2" href="/lists/{{ booklist.id }}/edit">Edit</a>
+{% endif %}
+</h2>
+
+<p>{{ booklist.blurb }}</p>
+
+<h3>Books</h3>
+
+<ul id="booklist-books">
+    {% if booklist.books|length > 0 %}
+        {% for book in booklist.books %}
+            <li><a href="#">{{ book.title }}</a></li> <!-- TODO link to book on ol -->
+        {% endfor %}
+    {% else %}
+        <h5 id="empty-list-msg">There are no books in this list <i class="fa-solid fa-face-frown-open"></i></h5>
+    {% endif%}
+</ul>

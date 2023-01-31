@@ -6,16 +6,16 @@
 
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
-        <h2 class="welcome">Welcome {{ g.user.username }}!</h2>
-        {% if user_id == g.user.id %}
-            <form>
-                <button class="btn btn-primary btn-lg"
+        <h2 class="welcome">Welcome {{ g.user.username }}!
+            {% if user_id == g.user.id %}
+                <a class="btn btn-outline-primary btn-sm mb-2" href="/profile/edit">Edit</a>
+            {% endif %}
+        </h2>
+            <!-- <form>
+                <button class="btn btn-primary btn-sm"
                         formaction="/profile/edit">Edit Profile</button>
-                <button class="btn btn-outline-danger btn-lg"
-                        formaction="/profile/delete"
-                        formmethod="POST">Delete Account</button> <!-- Confirmation TODO -->
-            </form>
-        {% endif %}
+            </form> -->
+        
         <h3>Your Lists!</h3>
         {% if g.user.lists|length > 0 %}
             <ul>

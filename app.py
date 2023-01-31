@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g, url_for, abort
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for, abort, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -218,6 +218,27 @@ def show_booklist(list_id):
     return render_template("/booklists/view-list.html", booklist=booklist)
 
 
+@app.route('/lists/<int:list_id>/add', methods=['GET', 'POST'])
+def add_books_booklist(list_id):
+    """Add Books Booklist"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    add_list = BookList.query.get_or_404(list_id)
+    if add_list.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    if request.method == 'POST':
+        word_id = request.form.get("workId")
+        # TODO actually add it, etc
+        return jsonify({"result": "success"})
+    
+    return render_template("/booklists/add-list.html", booklist=add_list)
+
+
 @app.route('/lists/<int:list_id>/edit', methods=['GET', 'POST'])
 def edit_booklist(list_id):
     """Edit Booklist"""
@@ -342,12 +363,12 @@ def delete_note(note_id):
 #
 
 @app.route('/search/<term>')
-def do_search_url(term):
+def do_search_json(term):
     """qd_search"""
 
     json = qd_search(term)
 
-    return render_template("search.html", term=term, results=json)
+    return jsonify(json)
 
 @app.route('/search')
 def do_search():

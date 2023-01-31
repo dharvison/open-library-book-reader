@@ -11,7 +11,9 @@
       <form method="POST" id="note_form">
         {% include '_form.html' %}
 
-        <button class="btn btn-primary btn-block btn-lg">Edit Profile</button>
+        <button class="btn btn-primary mt-3">Edit Profile</button>
+        <button class="btn btn-outline-danger mt-3"
+        formaction="/profile/delete">Delete Account</button> <!-- Confirmation TODO -->
       </form>
     </div>
   </div>

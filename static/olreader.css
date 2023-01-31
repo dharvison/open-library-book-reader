@@ -1,3 +1,22 @@
-.form-group, .btn-lg {
+.form-group, h3 {
     margin-top: 1rem;
+}
+
+.main-content {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cover-text {
+    font-size: xx-large;
+    color: maroon;
+}
+
+.cover-text, .cover-image {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.search-result {
+    padding: 0.5rem;
 }
