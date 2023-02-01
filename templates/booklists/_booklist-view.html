@@ -8,10 +8,10 @@
 
 <h3>Books</h3>
 
-<ul id="booklist-books">
+<ul id="booklist-books" data-listid="{{ booklist.id }}">
     {% if booklist.books|length > 0 %}
         {% for book in booklist.books %}
-            <li><a href="#">{{ book.title }}</a></li> <!-- TODO link to book on ol -->
+            <li><a href="/books/{{ book.isbn }}">{{ book.title }}</a> by {{ book.author }} <a href="#" class="link-danger" data-id="{{ book.isbn }}"><i class="fa-regular fa-circle-xmark"></i></a></li> <!-- TODO link to book on ol -->
         {% endfor %}
     {% else %}
         <h5 id="empty-list-msg">There are no books in this list <i class="fa-solid fa-face-frown-open"></i></h5>

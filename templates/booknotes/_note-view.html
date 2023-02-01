@@ -1,15 +1,18 @@
-<h2>Note for {{ note.book.title }}
-{% if note.user_id == g.user.id %}
-    <a class="btn btn-outline-primary btn-sm mb-2" href="/notes/{{ note.id }}/edit">Edit</a>
+
+{% if book.notes|length > 0 %}
+    {% for note in book.notes %}
+        <h2>Note for {{ book.title }}
+        {% if note.user_id == g.user.id %}
+            <a class="btn btn-outline-primary btn-sm mb-2" href="/notes/{{ note.id }}/edit">Edit</a>
+        {% endif %}
+        </h2>
+
+        <p>Read book: {{ note.read }}</p>
+
+        <p>{{ note.note }}</p>
+
+        <a href="#">Link to the book or something TODO</a>
+    {% endfor %}
+{% else %}
+    <h2>No Note for {{ book.title }}!</h2>
 {% endif %}
-</h2>
-<!-- <form>
-    <button class="btn btn-primary btn-sm"
-            formaction="/notes/{{ note.id }}/edit">Edit</button>
-</form> -->
-
-<p>Read book: {{ note.read }}</p>
-
-<p>{{ note.note }}</p>
-
-<a href="#">Link to the book or something TODO</a>

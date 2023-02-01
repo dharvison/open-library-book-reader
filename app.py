@@ -220,7 +220,7 @@ def show_booklist(list_id):
 
 @app.route('/lists/<int:list_id>/add', methods=['GET', 'POST'])
 def add_books_booklist(list_id):
-    """Add Books Booklist"""
+    """Add Books to Booklist"""
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -232,11 +232,73 @@ def add_books_booklist(list_id):
         return redirect("/")
     
     if request.method == 'POST':
-        word_id = request.form.get("workId")
-        # TODO actually add it, etc
-        return jsonify({"result": "success"})
+        work_id = request.json.get("workId")
+        if work_id != None and len(work_id) > 0:
+            split_id = work_id.split("/")
+            olid = split_id[-1]
+            work_type = split_id[-2]
+            book_record = Book.query.filter(Book.isbn == olid).first()
+
+            if book_record != None:
+                if book_record not in add_list.books:
+                    add_list.books.append(book_record)
+                    db.session.commit()
+                else:
+                    return jsonify({
+                        "err": f"List already contains {book_record.title}",
+                        "type": "warning",
+                        })
+
+            else:
+                # add the book!
+                book_record = Book.create_book(olid, work_type)
+                add_list.books.append(book_record)
+                db.session.commit()
+
+            return jsonify(book_record.to_dict())
+
+        return jsonify({ # TODO errors?
+            "err": f"Failed to find {work_id}",
+            "type": "danger",
+            })
     
     return render_template("/booklists/add-list.html", booklist=add_list)
+
+@app.route('/lists/<int:list_id>/remove', methods=['POST'])
+def remove_books_booklist(list_id):
+    """Remove Books from Booklist"""
+
+    # TODO NEED TO TEST THIS WITH POST only
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    remove_list = BookList.query.get_or_404(list_id)
+    if remove_list.user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    work_id = request.json.get("workId")
+    if work_id != None and len(work_id) > 0:
+        book_record = Book.query.filter(Book.isbn == work_id).first()
+
+        if book_record != None:
+            if book_record in remove_list.books:
+                remove_list.books.remove(book_record)
+                db.session.commit()
+                return jsonify({ 
+                        "result": "success",
+                        })
+            else:
+                return jsonify({
+                    "err": f"{book_record.title} isn't in this list.",
+                    "type": "warning",
+                    })
+        
+        return jsonify({
+                "err": f"Could not find the item to remove",
+                "type": "danger",
+                })
 
 
 @app.route('/lists/<int:list_id>/edit', methods=['GET', 'POST'])
@@ -280,6 +342,17 @@ def delete_booklist(list_id):
     
     return redirect(url_for("show_profile"))
 
+
+#
+# Book Routes
+#
+
+@app.route('/books/<book_id>')
+def show_book(book_id):
+    """Display the Book"""
+
+    book = Book.query.get_or_404(book_id)
+    return render_template("/books/view-book.html", book=book)
 
 #
 # BookNote Routes

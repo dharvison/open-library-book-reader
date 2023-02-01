@@ -8,7 +8,6 @@
 }
 
 .cover-text {
-    font-size: xx-large;
     color: maroon;
 }
 
@@ -20,3 +19,7 @@
 .search-result {
     padding: 0.5rem;
 }
+
+/* #search-loading {
+    align-self: center;
+} */

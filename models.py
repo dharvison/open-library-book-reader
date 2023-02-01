@@ -5,6 +5,8 @@ from datetime import datetime
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
+from open_library import fetch_book_data
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -99,7 +101,37 @@ class Book(db.Model):
         return f"{self.title} by {self.author}"
 
     def __repr__(self):
-        return f"<Book #{self.isbn}: {self.title}, {self.author}>"
+        return f"<Book {self.isbn}: {self.title}, {self.author}>"
+    
+    def to_dict(self):
+        """return a dict version of self to jsonify and send to client"""
+
+        book_dict = {
+            "olid" : self.isbn,
+            "title": self.title,
+            "author": self.author,
+            "cover_url": self.cover_url,
+        }
+        return book_dict
+    
+    @classmethod
+    def create_book(cls, olid, work_type):
+        """Fetch the relevant data and create a book"""
+
+        fetched_data = fetch_book_data(olid, work_type)
+
+        key = fetched_data["key"]
+
+        new_book = Book (
+            isbn = olid,
+            title = fetched_data["title"],
+            author = fetched_data["authors"][0], # TODO
+            cover_url = fetched_data["cover_url"]
+        )
+        db.session.add(new_book)
+        db.session.commit()
+
+        return new_book
 
 
 class BookNote(db.Model):
@@ -125,7 +157,7 @@ class BookNote(db.Model):
     note = db.Column(db.Text)
 
     user = db.relationship("User", backref="notes")
-    book = db.relationship("Book") # probably don't need link from Book to Notes
+    book = db.relationship("Book", backref="note")
 
 
 class BookList(db.Model):

@@ -1,0 +1,9 @@
+{% extends 'split-base.html' %}
+
+{% block left %}
+    {% include '/books/_book-view.html' %}
+{% endblock %}
+
+{% block right %}
+    {% include '/booknotes/_note-view.html' %}
+{% endblock %}
