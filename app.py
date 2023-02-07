@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Book, BookNote, BookList
 from forms import UserRegisterForm, UserEditForm, LoginForm, CreateEditBooklistForm, CreateEditNoteForm
-from open_library import qd_search
+from open_library import keyword_search, isbn_search
 from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
@@ -233,11 +233,12 @@ def add_books_booklist(list_id):
     
     if request.method == 'POST':
         work_id = request.json.get("workId")
+        isbn = request.json.get("isbn")
         if work_id != None and len(work_id) > 0:
             split_id = work_id.split("/")
             olid = split_id[-1]
             work_type = split_id[-2]
-            book_record = Book.query.filter(Book.isbn == olid).first()
+            book_record = Book.query.filter(Book.olid == olid).first()
 
             if book_record != None:
                 if book_record not in add_list.books:
@@ -251,7 +252,7 @@ def add_books_booklist(list_id):
 
             else:
                 # add the book!
-                book_record = Book.create_book(olid, work_type)
+                book_record = Book.create_book(olid, work_type, isbn)
                 add_list.books.append(book_record)
                 db.session.commit()
 
@@ -280,7 +281,7 @@ def remove_books_booklist(list_id):
     
     work_id = request.json.get("workId")
     if work_id != None and len(work_id) > 0:
-        book_record = Book.query.filter(Book.isbn == work_id).first()
+        book_record = Book.query.filter(Book.olid == work_id).first()
 
         if book_record != None:
             if book_record in remove_list.books:
@@ -351,8 +352,15 @@ def delete_booklist(list_id):
 def show_book(book_id):
     """Display the Book"""
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     book = Book.query.get_or_404(book_id)
-    return render_template("/books/view-book.html", book=book)
+    note = BookNote.query.filter(BookNote.user_id == g.user.id).filter(BookNote.book_olid == book.olid).first()
+    print(note)
+
+    return render_template("/books/view-book.html", book=book, note=note)
 
 #
 # BookNote Routes
@@ -366,11 +374,15 @@ def create_note():
         flash("Access unauthorized.", "danger")
         return redirect("/")
     
-    note_form = CreateEditNoteForm()
+    if request.method == "GET":
+        data = {"book_olid": request.args.get("bookid")}
+        note_form = CreateEditNoteForm(data=data)
+    else:
+        note_form = CreateEditNoteForm()
+    
     if note_form.validate_on_submit():
         new_note = BookNote()
         new_note.user_id = g.user.id
-        new_note.book_isbn = "12345" # TODO
         note_form.populate_obj(new_note)
 
         db.session.add(new_note)
@@ -378,6 +390,9 @@ def create_note():
 
         return redirect(url_for("show_note", note_id=new_note.id))
     
+    note_form.book_olid = request.args.get("bookid")
+    # TODO do some testing about
+
     return render_template("/booknotes/create-note.html", form=note_form)
 
 
@@ -386,7 +401,10 @@ def show_note(note_id):
     """Display the BookNote"""
 
     note = BookNote.query.get_or_404(note_id)
-    return render_template("/booknotes/view-note.html", note=note)
+    book = note.book
+
+    return render_template("/books/view-book.html", book=book, note=note)
+    # return render_template("/booknotes/view-note.html", note=note)
 
 
 @app.route('/notes/<int:note_id>/edit', methods=['GET', 'POST'])
@@ -437,18 +455,18 @@ def delete_note(note_id):
 
 @app.route('/search/<term>')
 def do_search_json(term):
-    """qd_search"""
+    """Keyword search"""
 
-    json = qd_search(term)
+    json = keyword_search(term)
 
     return jsonify(json)
 
 @app.route('/search')
 def do_search():
-    """qd_search"""
+    """Keyword search""" #TODO remove?
 
     term = request.args.get("term")
-    json = qd_search(term)
+    json = keyword_search(term)
 
     return render_template("search.html", term=term, results=json)
 

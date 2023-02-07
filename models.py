@@ -88,8 +88,8 @@ class Book(db.Model):
 
     __tablename__ = 'books'
 
-    isbn = db.Column(db.Text, primary_key=True)
-
+    olid = db.Column(db.Text, primary_key=True)
+    isbn = db.Column(db.Text, unique=True)
     title = db.Column(db.Text, nullable=False)
     author = db.Column(db.Text, nullable=False)
     cover_url = db.Column(db.Text) # Need a default blank cover
@@ -101,13 +101,14 @@ class Book(db.Model):
         return f"{self.title} by {self.author}"
 
     def __repr__(self):
-        return f"<Book {self.isbn}: {self.title}, {self.author}>"
+        return f"<Book {self.olid}: {self.title}, {self.author}>"
     
     def to_dict(self):
         """return a dict version of self to jsonify and send to client"""
 
         book_dict = {
-            "olid" : self.isbn,
+            "olid" : self.olid,
+            "isbn" : self.isbn,
             "title": self.title,
             "author": self.author,
             "cover_url": self.cover_url,
@@ -115,15 +116,16 @@ class Book(db.Model):
         return book_dict
     
     @classmethod
-    def create_book(cls, olid, work_type):
+    def create_book(cls, olid, work_type, isbn):
         """Fetch the relevant data and create a book"""
 
-        fetched_data = fetch_book_data(olid, work_type)
+        fetched_data = fetch_book_data(olid, work_type)#todo
 
         key = fetched_data["key"]
 
         new_book = Book (
-            isbn = olid,
+            olid = olid,
+            isbn = isbn,
             title = fetched_data["title"],
             author = fetched_data["authors"][0], # TODO
             cover_url = fetched_data["cover_url"]
@@ -147,9 +149,9 @@ class BookNote(db.Model):
         nullable=False,
     )
 
-    book_isbn = db.Column(
+    book_olid = db.Column(
         db.Text,
-        db.ForeignKey('books.isbn', ondelete='CASCADE'),
+        db.ForeignKey('books.olid', ondelete='CASCADE'),
         nullable=False,
     )
 
@@ -157,7 +159,7 @@ class BookNote(db.Model):
     note = db.Column(db.Text)
 
     user = db.relationship("User", backref="notes")
-    book = db.relationship("Book", backref="note")
+    book = db.relationship("Book", backref="notes")
 
 
 class BookList(db.Model):
@@ -189,8 +191,8 @@ class BookListBooks(db.Model):
         primary_key=True,
     )
 
-    book_isbn = db.Column(
+    book_olid = db.Column(
         db.Text,
-        db.ForeignKey('books.isbn', ondelete='CASCADE'),
+        db.ForeignKey('books.olid', ondelete='CASCADE'),
         primary_key=True,
     )

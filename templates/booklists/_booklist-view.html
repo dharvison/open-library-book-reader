@@ -11,7 +11,17 @@
 <ul id="booklist-books" data-listid="{{ booklist.id }}">
     {% if booklist.books|length > 0 %}
         {% for book in booklist.books %}
-            <li><a href="/books/{{ book.isbn }}">{{ book.title }}</a> by {{ book.author }} <a href="#" class="link-danger" data-id="{{ book.isbn }}"><i class="fa-regular fa-circle-xmark"></i></a></li> <!-- TODO link to book on ol -->
+            <li class="list-book">
+                {% if book.cover_url is not none and book.cover_url|length > 0 %}
+                    <img class="cover-image" src="{{ book.cover_url }}-S.jpg" />
+                {% else %}
+                    <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
+                {% endif %}
+                <span class="book-title">
+                    <a href="/books/{{ book.olid }}">{{ book.title }}</a> by {{ book.author }} 
+                    <a href="#" class="link-danger" data-id="{{ book.olid }}"><i class="fa-regular fa-circle-xmark"></i></a>
+                </span>
+            </li>
         {% endfor %}
     {% else %}
         <h5 id="empty-list-msg">There are no books in this list <i class="fa-solid fa-face-frown-open"></i></h5>

@@ -34,21 +34,21 @@ def seed_data(db):
 
     # dummy books
     b1 = Book(
-        isbn = "12345",
+        olid = "12345",
         title = "Watchmen",
         author = "Alan Moore",
         cover_url = "https://covers.openlibrary.org/b/id/6459694-S.jpg",
     )
 
     b2 = Book(
-        isbn = "11111",
+        olid = "11111",
         title = "Catch-22",
         author = "Joseph Heller",
         cover_url = "https://covers.openlibrary.org/b/id/13061725-S.jpg",
     )
 
     b3 = Book(
-        isbn = "22222",
+        olid = "22222",
         title = "Ulysses",
         author = "James Joyce",
         cover_url = "https://covers.openlibrary.org/b/id/13136659-S.jpg",

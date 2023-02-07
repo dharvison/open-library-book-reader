@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField, HiddenField
 from wtforms.validators import DataRequired, Email, Length
 
 
@@ -39,4 +39,5 @@ class CreateEditNoteForm(FlaskForm):
 
     read = BooleanField('Read')
     note = TextAreaField('Note')
+    book_olid = HiddenField('book_olid')
 

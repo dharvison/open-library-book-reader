@@ -6,7 +6,7 @@
 
   <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
-      <h2>Edit {{ note.title }}</h2>
+      <h2>Edit note for {{ note.book.title }}</h2>
 
       <form method="POST" id="note_form">
         {% include '_form.html' %}
