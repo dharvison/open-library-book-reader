@@ -25,18 +25,7 @@ class User(db.Model):
     email = db.Column(db.Text, nullable=False, unique=True)
     username = db.Column(db.Text, nullable=False, unique=True)
 
-    # image_url = db.Column(
-    #     db.Text,
-    #     default="/static/images/default-pic.png",
-    # )
-
-    # header_image_url = db.Column(
-    #     db.Text,
-    #     default="/static/images/warbler-hero.jpg"
-    # )
-
     bio = db.Column(db.Text)
-    location = db.Column(db.Text)
     password = db.Column(db.Text, nullable=False)
 
     is_admin = db.Column(db.Boolean, default=False)
@@ -92,8 +81,7 @@ class Book(db.Model):
     isbn = db.Column(db.Text, unique=True)
     title = db.Column(db.Text, nullable=False)
     author = db.Column(db.Text, nullable=False)
-    cover_url = db.Column(db.Text) # Need a default blank cover
-    # else needs to be cached?
+    cover_url = db.Column(db.Text) # if None uses font awesome icon
 
     def display_book(self):
         """Title by Author"""
@@ -116,18 +104,16 @@ class Book(db.Model):
         return book_dict
     
     @classmethod
-    def create_book(cls, olid, work_type, isbn):
+    def create_book(cls, olid, isbn):
         """Fetch the relevant data and create a book"""
 
-        fetched_data = fetch_book_data(olid, work_type)#todo
-
-        key = fetched_data["key"]
+        fetched_data = fetch_book_data(olid)
 
         new_book = Book (
             olid = olid,
             isbn = isbn,
             title = fetched_data["title"],
-            author = fetched_data["authors"][0], # TODO
+            author = fetched_data.get("authors")[0] if "authors" in fetched_data else "Unknown",
             cover_url = fetched_data["cover_url"]
         )
         db.session.add(new_book)

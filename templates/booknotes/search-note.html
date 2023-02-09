@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Find book for Note{% endblock %}
+
+{% block body_class %}search{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-10 col-lg-8">
+        <h2>Search for books to add a note</h2>
+
+        <form id="book-search" class="d-flex flex-grow-1 me-2"
+            role="search">
+            <input id="book-search-term" name="term" class="form-control me-1"
+                type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+
+        <div class="row justify-content-md-center">
+            <div class="col-md-12 col-lg-10">
+                {% include '/search/_search-loading.html' %}
+
+                {% include '/search/_search-results.html' %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+{% endblock %}

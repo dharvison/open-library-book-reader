@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Book, BookNote, BookList
 from forms import UserRegisterForm, UserEditForm, LoginForm, CreateEditBooklistForm, CreateEditNoteForm
-from open_library import keyword_search, isbn_search
+from open_library import keyword_search, fetch_availabilty_links
 from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
@@ -232,15 +232,12 @@ def add_books_booklist(list_id):
         return redirect("/")
     
     if request.method == 'POST':
-        work_id = request.json.get("workId")
+        olid = request.json.get("workId")
         isbn = request.json.get("isbn")
-        if work_id != None and len(work_id) > 0:
-            split_id = work_id.split("/")
-            olid = split_id[-1]
-            work_type = split_id[-2]
-            book_record = Book.query.filter(Book.olid == olid).first()
+        if olid is not None and len(olid) > 0:
+            book_record = Book.query.filter_by(olid=olid).first()
 
-            if book_record != None:
+            if book_record is not None:
                 if book_record not in add_list.books:
                     add_list.books.append(book_record)
                     db.session.commit()
@@ -252,7 +249,7 @@ def add_books_booklist(list_id):
 
             else:
                 # add the book!
-                book_record = Book.create_book(olid, work_type, isbn)
+                book_record = Book.create_book(olid, isbn)
                 add_list.books.append(book_record)
                 db.session.commit()
 
@@ -269,7 +266,6 @@ def add_books_booklist(list_id):
 def remove_books_booklist(list_id):
     """Remove Books from Booklist"""
 
-    # TODO NEED TO TEST THIS WITH POST only
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -280,10 +276,10 @@ def remove_books_booklist(list_id):
         return redirect("/")
     
     work_id = request.json.get("workId")
-    if work_id != None and len(work_id) > 0:
+    if work_id is not None and len(work_id) > 0:
         book_record = Book.query.filter(Book.olid == work_id).first()
 
-        if book_record != None:
+        if book_record is not None:
             if book_record in remove_list.books:
                 remove_list.books.remove(book_record)
                 db.session.commit()
@@ -344,6 +340,19 @@ def delete_booklist(list_id):
     return redirect(url_for("show_profile"))
 
 
+@app.route('/lists/booksread')
+def show_read_books():
+    """Pseudo list which shows the books the logged in user has read"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    read_list = [note.book for note in g.user.notes if note.read == True]
+
+    return render_template("/booklists/read-list.html", books=read_list)
+
+
 #
 # Book Routes
 #
@@ -357,10 +366,12 @@ def show_book(book_id):
         return redirect("/")
 
     book = Book.query.get_or_404(book_id)
-    note = BookNote.query.filter(BookNote.user_id == g.user.id).filter(BookNote.book_olid == book.olid).first()
-    print(note)
+    note = BookNote.query.filter_by(user_id=g.user.id).filter_by(book_olid=book.olid).first()
+    lists = [bl for bl in book.lists if bl.user_id == g.user.id]
 
-    return render_template("/books/view-book.html", book=book, note=note)
+    links = fetch_availabilty_links(book.olid)
+
+    return render_template("/books/view-book.html", book=book, note=note, lists=lists, links=links)
 
 #
 # BookNote Routes
@@ -375,8 +386,18 @@ def create_note():
         return redirect("/")
     
     if request.method == "GET":
-        data = {"book_olid": request.args.get("bookid")}
-        note_form = CreateEditNoteForm(data=data)
+        book_olid = request.args.get("bookid")
+
+        if book_olid is not None:
+            for note in g.user.notes:
+                if note.book_olid == book_olid:
+                    flash("A note already exists for this book!", "warning")
+                    return redirect(url_for("show_note", note_id=note.id))
+
+            note_form = CreateEditNoteForm(data={"book_olid": book_olid})
+        else:
+            flash("Search for a book first!", "warning")
+            return redirect(url_for("search_create_note"))
     else:
         note_form = CreateEditNoteForm()
     
@@ -385,15 +406,32 @@ def create_note():
         new_note.user_id = g.user.id
         note_form.populate_obj(new_note)
 
+        olid = new_note.book_olid
+        book = Book.query.filter_by(olid=olid).first()
+        if (book is None):
+            # add the book!
+            book_record = Book.create_book(olid, None)
+            db.session.commit()
+
         db.session.add(new_note)
         db.session.commit()
 
         return redirect(url_for("show_note", note_id=new_note.id))
     
     note_form.book_olid = request.args.get("bookid")
-    # TODO do some testing about
 
     return render_template("/booknotes/create-note.html", form=note_form)
+
+
+@app.route('/notes/create/search')
+def search_create_note():
+    """Search for a book to create a note for"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    return render_template("/booknotes/search-note.html")
 
 
 @app.route('/notes/<int:note_id>')
@@ -402,9 +440,9 @@ def show_note(note_id):
 
     note = BookNote.query.get_or_404(note_id)
     book = note.book
+    lists = [bl for bl in book.lists if bl.user_id == g.user.id]
 
-    return render_template("/books/view-book.html", book=book, note=note)
-    # return render_template("/booknotes/view-note.html", note=note)
+    return render_template("/books/view-book.html", book=book, note=note, lists=lists)
 
 
 @app.route('/notes/<int:note_id>/edit', methods=['GET', 'POST'])
@@ -450,7 +488,7 @@ def delete_note(note_id):
 
 
 #
-# Book and Search
+# Search
 #
 
 @app.route('/search/<term>')
@@ -468,5 +506,5 @@ def do_search():
     term = request.args.get("term")
     json = keyword_search(term)
 
-    return render_template("search.html", term=term, results=json)
+    return render_template("search/search.html", term=term, results=json)
 

@@ -1,44 +1,61 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ g.user.username }} Profile{% endblock %}
+
 {% block body_class %}profile{% endblock %}
 
 {% block content %}
 
+<div class="row">
+    <h2 class="welcome">Welcome {{ g.user.username }}!
+        {% if user_id == g.user.id %}
+            <a class="btn btn-outline-primary btn-sm mb-2" href="/profile/edit">Edit</a>
+        {% endif %}
+    </h2>
+</div>
 <div class="row justify-content-md-center">
-    <div class="col-md-7 col-lg-5">
-        <h2 class="welcome">Welcome {{ g.user.username }}!
-            {% if user_id == g.user.id %}
-                <a class="btn btn-outline-primary btn-sm mb-2" href="/profile/edit">Edit</a>
-            {% endif %}
-        </h2>
-            <!-- <form>
-                <button class="btn btn-primary btn-sm"
-                        formaction="/profile/edit">Edit Profile</button>
-            </form> -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                {% if g.user.bio is not none %}
+                    <p>{{ g.user.bio }}</p>
+                {% endif %}
         
-        <h3>Your Lists!</h3>
-        {% if g.user.lists|length > 0 %}
-            <ul>
-                {% for booklist in g.user.lists %}
-                    <li><a href="/lists/{{ booklist.id }}">{{ booklist.title }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <h5>You don't have any lists <i class="fa-solid fa-face-frown-open"></i></h5>
-        {% endif%}
-        <a href="/lists/create" class="btn btn-primary">Create a list</a>
-
-        <h3>Your Notes!</h3>
-        {% if g.user.notes|length > 0 %}
-            <ul>
-                {% for note in g.user.notes %}
-                    <li><a href="/notes/{{ note.id }}">{{ note.book.title }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <h5>You don't have any notes <i class="fa-solid fa-face-frown-open"></i></h5>
-        {% endif%}
-        <a href="/notes/create" class="btn btn-primary">Create a note</a>
+                <h4><a href="/lists/booksread" class="link-title link-primary">Books Read</a></h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Lists <a href="/lists/create" class="btn btn-primary btn-sm mb-2">Create a list</a></h3>
+                {% if g.user.lists|length > 0 %}
+                    <ul>
+                        {% for booklist in g.user.lists %}
+                            <li><a href="/lists/{{ booklist.id }}">{{ booklist.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <h5 class="empty-list-msg">You don't have any lists <i class="fa-solid fa-face-frown-open"></i></h5>
+                {% endif%}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Notes <a href="/notes/create/search" class="btn btn-primary btn-sm mb-2">Create a note</a></h3>
+                {% if g.user.notes|length > 0 %}
+                    <ul>
+                        {% for note in g.user.notes %}
+                            <li><a href="/notes/{{ note.id }}">{{ note.book.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <h5 class="empty-list-msg">You don't have any notes <i class="fa-solid fa-face-frown-open"></i></h5>
+                {% endif%}
+            </div>
+        </div>
     </div>
 </div>
 

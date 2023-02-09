@@ -2,77 +2,50 @@
 
 import requests
 
-BASE_URL = "https://openlibrary.org/"
-BOOK_URL = f"{BASE_URL}books/"
+BASE_URL = "https://openlibrary.org"
+BOOK_URL = f"{BASE_URL}/api/books"
+COVER_ID_URL = "https://covers.openlibrary.org/b/id/"
 
-COVER_URL = "https://covers.openlibrary.org/b/olid/"
-COVER_S_POSTFIX = "-S.jpg"
-COVER_M_POSTFIX = "-M.jpg"
-COVER_L_POSTFIX = "-L.jpg"
+DEFAULT_SEARCH_FIELDS = "key,isbn,author_name,title,lending_edition_s,ia,availability,cover_i"
 
-DEFAULT_SEARCH_FIELDS = "key,isbn,author_name,title,lending_edition_s,ia,availability,cover_edition_key,publish_date"
+#
+# Search
+#
 
-def qd_search(term):
-    """quick and dirty search as poc"""
-    print("****************** DON'T USE THIS SEARCH use do_search instead! ******************")
-    concat_search = term.replace(" ", "+")
-    url = f"{ BASE_URL }search.json?q={ concat_search }"
-    print(url)
-
-    response = requests.get(url)
-    print(response.status_code)
-    data = response.json()
-    # for k in data['docs'][0].keys():
-    #     print(k)
-
-    results = { # TODO Remove total and num
-        'total': data.get('numFound', 0),
-        'num_returned': 0, #len(data.get('docs')),
-        'works': [],
-    }
-    for work in data.get('docs'):
-        work_data = parse_data(work)
-        if work_data != None:
-            results.get('works').append(work_data)
-            results['num_returned'] = results.get('num_returned') + 1
-
-    return results
-
-def do_search(query, fields="*", limit=100, offset=0):
+def do_search(query, fields="*", limit=100, page=1):
     """
     Perform a search for the given query and fields
     
     query is generally based on q=TERM or isbn=ISBN
-    fields is * or something like: "key,isbn,author_name,title,lending_edition_s,ia,availability,cover_edition_key"
-    limit, offset
+    fields is * or something like: "key,isbn,author_name,title,lending_edition_s,ia,availability,cover_i"
+    limit, page
 
     returns dict from response json
     """
     
-    request_url = f"{ BASE_URL }search.json?{ query }&fields={ fields }&limit={ limit }&offset={ offset }"
+    request_url = f"{ BASE_URL }/search.json?{ query }&fields={ fields }&limit={ limit }&page={ page }"
     print(request_url)
 
     response = requests.get(request_url)
-    print(response.status_code)
     resp_data = response.json()
 
     return resp_data
 
 
-def keyword_search(keyword, fields=DEFAULT_SEARCH_FIELDS, limit=100, offset=0):
+def keyword_search(keyword, fields=DEFAULT_SEARCH_FIELDS, limit=100, page=1):
     """Search for keyword"""
 
     query=f"q={ keyword }"
-    search_data = do_search(query, fields, limit, offset)
+    search_data = do_search(query, fields, limit, page)
 
     results = {
         'total': search_data.get('numFound', 0),
-        'num_returned': 0, #len(data.get('docs')),
+        'num_returned': 0,
         'works': [],
     }
     for work in search_data.get('docs'):
-        work_data = parse_data(work)
-        if work_data != None:
+        work_data = parse_search_data(work)
+        if work_data is not None:
             results.get('works').append(work_data)
             results['num_returned'] = results.get('num_returned') + 1
 
@@ -89,79 +62,150 @@ def isbn_search(isbn, fields=DEFAULT_SEARCH_FIELDS):
         print(f"WARNING: Search for { isbn } yielded more than 1 result")
 
     work = isbn_data.get("docs", None)
-    if work != None:
-        work_data = parse_data(work)
-        if work_data != None:
+    if work is not None:
+        work_data = parse_search_data(work)
+        if work_data is not None:
             return work_data
     
     return None
 
 
-def parse_data(work): # TODO need to update for all the fields? or maybe I can drop this?
-    """parse the work to a dict/Object when it's done"""
+def parse_search_data(work):
+    """parse the search data to a dict"""
 
     key = work.get('key')
-    isbn = work.get('isbn', [])
+    olid = key.split('/')[-1]
     title = work.get('title')
-    author_key = work.get('author_key', [])
     author_name = work.get('author_name', [])
     publish_date = work.get('publish_date', [])
-    cover_edition_key = work.get('cover_edition_key')
-    lending_edition_s = work.get('lending_edition_s')
+    cover_id = work.get('cover_i')
+    lending_edition = work.get('lending_edition_s')
 
-    if key != None:
-        book = {
-            'key': key,
-            'title': title,
-            'isbn': isbn[0] if len(isbn) > 0 else None,
-            'author_name': author_name[0] if len(author_name) > 0 else 'Unknown',
-            'author_key': author_key[0] if len(author_key) > 0 else None,
-            'publish_date': publish_date[0] if len(publish_date) > 0 else None,
-            'cover_url': f"{COVER_URL}{cover_edition_key}{COVER_S_POSTFIX}" if cover_edition_key != None else None,
-            'lending_edition_s': lending_edition_s,
-            'book_url': f"{ BOOK_URL }{ lending_edition_s }" if lending_edition_s != None and len(lending_edition_s) > 0 else "",
-        }
-    else:
-        book = None
+    isbn_list = work.get('isbn', [])
+    isbn = isbn_list[0] if len(isbn_list) > 0 else None
+
+    availability = work.get('availability')
+    if availability is not None:
+        # if there is an available ISBN use that instead
+        isbn = availability.get('isbn')
+        if lending_edition is None:
+            lending_edition = availability.get('openlibrary_edition')
+
+    cover_url = f"{COVER_ID_URL}{cover_id}" if cover_id is not None else None
+    if lending_edition is not None:
+        cover_url = create_cover_url(lending_edition)
+
+    book = {
+        'workid': olid,
+        'olid': lending_edition if lending_edition is not None else olid,
+        'isbn': isbn,
+        'title': title,
+        'author_name': author_name[0] if len(author_name) > 0 else 'Unknown',
+        'cover_url': cover_url,
+        'book_url': f"{ BASE_URL }{ key }",
+    }
 
     return book
 
-# https://openlibrary.org/api/books?bibkeys=ISBN:1779501129,ISBN:9781784083014,OLID:OL1543504M&format=json&jscmd=data
-def fetch_book_data(olid, work_type):
+
+#
+# Fetch data on work and books
+#
+
+def fetch_book_data(olid):
     """Fetch data for a book with author data"""
 
-    book_data = fetch_work_data(olid, work_type)
+    w_type = work_type(olid)
+    fetched_data = fetch_data(olid, w_type)
+    book_data = fetched_data.get(f"OLID:{olid}") if w_type == "books" else fetched_data
 
-    authors = book_data['authors']
-    author_list = []
-    for author in authors:
-        split_id = author["author"]["key"].split("/")
-        fetched_author = fetch_work_data(split_id[-1], "authors")
-        author_list.append(fetched_author["name"])
-    book_data["authors"] = author_list
+    if "authors" in book_data:
+        author_list = []
+        for author in book_data.get("authors"):
+            # books and works nest author info differently
+            if "name" in author:
+                 author_list.append(author.get("name"))
+            else:
+                to_split = author.get("author") if "author" in author else author
+                split_id = to_split["key"].split("/")
+                fetched_author = fetch_data(split_id[-1], "authors")
+                author_list.append(fetched_author["name"])
+        book_data["authors"] = author_list
     
-    book_data["cover_url"] = create_cover_url(olid, work_type)
+    # books and works handle covers differently
+    covers = book_data.get("covers")
+    if covers is None and w_type == "books":
+        cover_data = fetch_data(olid, "cover")
+        covers = cover_data.get("covers")
+
+    if covers is not None and len(covers) > 0:
+        book_data["cover_url"] = create_cover_url(olid, w_type)
+    else:
+        book_data["cover_url"] = None
 
     return book_data
 
 
-def fetch_work_data(olid, work_type):
-    """Fetch data for olid and work_type"""
+def fetch_data(olid, data_type):
+    """Fetch data for olid and data_type"""
 
-    request_url = f"{BASE_URL}{work_type}/{olid}.json"
+    if data_type == "books":
+        request_url = f"{BOOK_URL}?bibkeys=OLID:{olid}&format=json&jscmd=data"
+    elif data_type == "cover":
+        request_url = f"{BASE_URL}/books/{olid}.json"
+    else:
+        request_url = f"{BASE_URL}/{data_type}/{olid}.json"
+        
     print(request_url)
 
     response = requests.get(request_url)
-    print(response.status_code)
+    # print(response.status_code)
 
     data = response.json()
     return data
 
 
-def create_cover_url(olid, work_type):
+#
+# Availability
+#
+
+def fetch_availabilty_links(olid):
+    """Fetch availability data and links for olid"""
+
+    w_type = work_type(olid)
+    fetched_data = fetch_data(olid, w_type)
+    book_data = fetched_data.get(f"OLID:{olid}") if w_type == "books" else fetched_data
+
+    ebook_data = book_data.get("ebooks")[0] if "ebooks" in book_data else None
+
+    availability_links = {
+        "ol_url": book_data.get("url"),
+        "availability": ebook_data.get("availability") if ebook_data is not None else None,
+        "checkedout": ebook_data.get("checkedout") if ebook_data is not None else None,
+        "borrow_url": ebook_data.get("borrow_url") if ebook_data is not None else None,
+        "read_url": ebook_data.get("read_url") if ebook_data is not None else None,
+    }
+
+    return availability_links
+
+#
+# Helper methods
+#
+
+def create_cover_url(olid, work_type=None):
     """Generate cover url based on olid and work_type"""
 
     img_type = "w" if work_type == "works" else "b"
-    cover = f"https://covers.openlibrary.org/{img_type}/olid/{olid}" # Possibly just the stem
+    cover = f"https://covers.openlibrary.org/{img_type}/olid/{olid}"
 
     return cover
+
+
+def work_type(olid):
+    """Return work type: works, books, author"""
+
+    if olid[-1] == 'W':
+        return "works"
+    if olid[-1] == 'A':
+        return "authors"
+    return "books"

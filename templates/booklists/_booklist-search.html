@@ -7,17 +7,6 @@
     <button class="btn btn-outline-success" type="submit">Search</button>
 </form>
 
-{% include '_search-loading.html' %}
+{% include '/search/_search-loading.html' %}
 
-<div id="search-results-display" style="display: none;">
-    <h3>Results for: <span id="search-text"></span></h3>
-    <div id="search-results">
-        <!-- results go here! -->
-    </div>
-    <div id="search-results-count" class="mt-3">
-        <!-- Loaded # of # total results -->
-    </div>
-    <button type="button" class="btn btn-primary mt-3">
-        Load More Results! <!-- TODO -->
-    </button>
-</div>
+{% include '/search/_search-results.html' %}

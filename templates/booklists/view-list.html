@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ booklist.title }}{% endblock %}
+
 {% block body_class %}list{% endblock %}
 
 {% block content %}
 
   <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
+      {% set add_book = True %}
       {% include '/booklists/_booklist-view.html' %}
-
-      <a href="/lists/{{ booklist.id }}/add" class="btn btn-primary mt-3">Add a book!</a>
     </div>
   </div>
 

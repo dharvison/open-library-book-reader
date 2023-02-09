@@ -1,6 +1,60 @@
-<h2>{{ book.title }}</h2>
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title"><a href="/books/{{ book.olid }}" class="link-dark link-title">{{ book.title }}</a></h2>
+        <h5 class="card-subtitle">by {{ book.author }}</h5>
+        
+        {% if book.cover_url is not none and book.cover_url|length > 0 %}
+            <img class="my-3" src="{{ book.cover_url }}-M.jpg" alt="cover"/>
+        {% else %}
+            <span class="cover-text fa-5x my-3"><i class="fa-solid fa-book-bookmark"></i></span>
+        {% endif %}
+    </div>
 
-<img src="{{ book.cover_url }}-M.jpg" alt="cover"/>
+    <ul class="list-group list-group-flush">
+        <!-- <h4 class="mx-3 my-1">External Links</h4> -->
+    {% if links is defined %}
+        {% if links.get('read_url') is not none  %}
+            <li class="list-group-item">
+                <div class="d-grid gap-2 col-10 mx-auto">
+                    <a href="{{ links.get('read_url') }}" class="btn btn-success" target="_blank">Read this book</a>
+                </div>
+            </li>
+        {% endif %}
 
-<h3>by {{ book.author }}</h3>
+        {% if links.get('borrow_url') is not none %}
+            <li class="list-group-item ">
+                <div class="d-grid gap-2 col-10 mx-auto">
+                    <a href="{{ links.get('borrow_url') }}" class="btn btn-primary" target="_blank">Borrow this book</a>
+                </div>
+            </li>
+        {% endif %}
+        
+        <li class="list-group-item">
+            <div class="d-grid gap-2 col-10 mx-auto">
+            {% if 'ol_url' in links %}
+                <a href="{{ links.get('ol_url') }}" class="btn btn-secondary" target="_blank">View on OpenLibrary.org</a>
+            {% else %}
+                <a href="https://openlibrary.org/works/{{book.olid}}" class="btn btn-secondary" target="_blank">View on OpenLibrary.org</a>
+            {% endif %}
+            </div>
+        </li>
+    {% else %}
+        <li class="list-group-item">
+            <div class="d-grid gap-2 col-10 mx-auto">
+                <a href="https://openlibrary.org/works/{{book.olid}}" class="btn btn-secondary" target="_blank">View on OpenLibrary.org</a>
+            </div>
+        </li>
+    {% endif %}
+    </ul>
 
+    <div class="card-body">
+        {% if lists is not none and lists|length > 0 %}
+            <h4>In your lists:</h4>
+            <ul>
+                {% for booklist in lists %}
+                    <li><a href="/lists/{{ booklist.id }}">{{ booklist.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>

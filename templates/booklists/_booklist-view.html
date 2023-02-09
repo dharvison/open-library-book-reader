@@ -1,29 +1,37 @@
-<h2>{{ booklist.title }}
-{% if booklist.user_id == g.user.id %}
-    <a class="btn btn-outline-primary btn-sm mb-2" href="/lists/{{ booklist.id }}/edit">Edit</a>
-{% endif %}
-</h2>
+<div class="card">
+    <div class="card-body">
+        <h2 class="card-title"><a href="/lists/{{ booklist.id }}" class="link-dark link-title">{{ booklist.title }}</a>
+        {% if booklist.user_id == g.user.id %}
+            <a class="btn btn-outline-primary btn-sm mb-2" href="/lists/{{ booklist.id }}/edit">Edit</a>
+        {% endif %}
+        </h2>
 
-<p>{{ booklist.blurb }}</p>
+        <p>{{ booklist.blurb }}</p>
 
-<h3>Books</h3>
+        <h4 class="card-subtitle">Books
+            {% if add_book is defined and booklist.user_id == g.user.id %}
+                <a href="/lists/{{ booklist.id }}/add" class="btn btn-primary btn-sm">Add a book!</a>
+            {% endif %}
+        </h4>
 
-<ul id="booklist-books" data-listid="{{ booklist.id }}">
-    {% if booklist.books|length > 0 %}
-        {% for book in booklist.books %}
-            <li class="list-book">
-                {% if book.cover_url is not none and book.cover_url|length > 0 %}
-                    <img class="cover-image" src="{{ book.cover_url }}-S.jpg" />
-                {% else %}
-                    <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
-                {% endif %}
-                <span class="book-title">
-                    <a href="/books/{{ book.olid }}">{{ book.title }}</a> by {{ book.author }} 
-                    <a href="#" class="link-danger" data-id="{{ book.olid }}"><i class="fa-regular fa-circle-xmark"></i></a>
-                </span>
-            </li>
-        {% endfor %}
-    {% else %}
-        <h5 id="empty-list-msg">There are no books in this list <i class="fa-solid fa-face-frown-open"></i></h5>
-    {% endif%}
-</ul>
+        <div id="booklist-books" data-listid="{{ booklist.id }}">
+            {% if booklist.books|length > 0 %}
+                {% for book in booklist.books %}
+                    <div class="list-book">
+                        {% if book.cover_url is not none and book.cover_url|length > 0 %}
+                            <img class="cover-image" src="{{ book.cover_url }}-S.jpg" />
+                        {% else %}
+                            <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
+                        {% endif %}
+                        <span class="book-title">
+                            <a href="/books/{{ book.olid }}">{{ book.title }}</a> by {{ book.author }} 
+                            <a href="#" class="link-danger" data-id="{{ book.olid }}" title="Remove"><i class="fa-regular fa-circle-xmark"></i></a>
+                        </span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h5 class="empty-list-msg">There are no books in this list <i class="fa-solid fa-face-frown-open"></i></h5>
+            {% endif%}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Books Read{% endblock %}
+
+{% block body_class %}list{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+        <h2>Books read</h2>
+            
+        <div id="booklist-books">
+            {% if books|length > 0 %}
+                {% for book in books %}
+                    <div class="list-book">
+                        {% if book.cover_url is not none and book.cover_url|length > 0 %}
+                            <img class="cover-image" src="{{ book.cover_url }}-S.jpg" />
+                        {% else %}
+                            <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
+                        {% endif %}
+                        <span class="book-title">
+                            <a href="/books/{{ book.olid }}">{{ book.title }}</a> by {{ book.author }} 
+                            <a href="#" class="link-danger" data-id="{{ book.olid }}" title="Remove"><i class="fa-regular fa-circle-xmark"></i></a>
+                        </span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h5 class="empty-list-msg">No books are marked read <i class="fa-solid fa-face-frown-open"></i></h5>
+            {% endif%}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

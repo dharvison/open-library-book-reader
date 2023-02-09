@@ -1,10 +1,10 @@
-.form-group, h3 {
-    margin-top: 1rem;
-}
-
 .main-content {
     margin-top: 1rem;
     margin-bottom: 1rem;
+}
+
+.form-group, h3 {
+    margin-top: 1rem;
 }
 
 .cover-text {
@@ -12,14 +12,26 @@
 }
 
 .cover-text, .cover-image {
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
-.search-result, .list-book, .book-title {
+.search-result, .list-book {
     padding: 0.5rem;
 }
 
 .note-text {
     font-size: large;
+}
+
+.link-title {
+    text-decoration: none;
+}
+
+.link-title:hover {
+    text-decoration: underline;
+}
+
+.empty-list-msg {
+    margin-top: 1rem;
 }

@@ -1,4 +1,3 @@
-
 {% if note is defined and note is not none %}
     <h2>Note for {% if show_link is defined %}<a href="/books/{{ book.olid }}">{% endif %}{{ book.title }}{% if show_link is defined %}</a>{% endif %}
     {% if note.user_id == g.user.id %}
