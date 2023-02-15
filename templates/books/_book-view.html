@@ -6,12 +6,23 @@
         {% if book.cover_url is not none and book.cover_url|length > 0 %}
             <img class="my-3" src="{{ book.cover_url }}-M.jpg" alt="cover"/>
         {% else %}
-            <span class="cover-text fa-5x my-3"><i class="fa-solid fa-book-bookmark"></i></span>
+            <span class="cover-text fa-5x my-3 text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
         {% endif %}
     </div>
 
     <ul class="list-group list-group-flush">
         <!-- <h4 class="mx-3 my-1">External Links</h4> -->
+        <li class="list-group-item">
+            <div class="d-grid gap-2 col-10 mx-auto">
+                <a href="#" id="toggle-{{book.olid}}" 
+                        class="btn btn-primary dropdown-toggle ml-1"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Add to List
+                    </a>
+                    {% include '/booklists/_booklist-dropdown.html' %}
+            </div>
+        </li>
+
     {% if links is defined %}
         {% if links.get('read_url') is not none  %}
             <li class="list-group-item">
@@ -31,7 +42,7 @@
         
         <li class="list-group-item">
             <div class="d-grid gap-2 col-10 mx-auto">
-            {% if 'ol_url' in links %}
+            {% if links.get('ol_url') is not none %}
                 <a href="{{ links.get('ol_url') }}" class="btn btn-secondary" target="_blank">View on OpenLibrary.org</a>
             {% else %}
                 <a href="https://openlibrary.org/works/{{book.olid}}" class="btn btn-secondary" target="_blank">View on OpenLibrary.org</a>

@@ -1,0 +1,9 @@
+<ul class="dropdown-menu add-list" aria-labelledby="toggle-{{book.olid}}" data-olid="{{ book.olid }}">
+    <li><a class="dropdown-item" href="/lists/create?bookid={{ book.olid }}">Create New List</a></li>
+    {% if g.user.lists|length > 0 %}
+        <li><hr class="dropdown-divider"></li>
+    {% endif %}
+    {% for bl in g.user.lists %}
+        <li><a class="dropdown-item add-existing" data-listid="{{ bl.id }}" href="#">{{ bl.title }}</a></li>
+    {% endfor %}
+</ul>

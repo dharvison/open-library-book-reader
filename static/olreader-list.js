@@ -58,6 +58,26 @@ async function addNote(evt) {
     }
 }
 
+async function addBookToList(evt) {
+    const $result = $(evt.target);
+    const listId = $result.data('listid');
+    const workId = $result.closest('.add-list').data('olid');
+
+    const result = await axios.post(`/lists/${listId}/add`, {workId: workId, isbn: null});
+    
+    if (result.data['err'] != null) {
+        const {err, type} = result.data;
+        console.log(err, type);
+        displayFlashMessage(err, type);
+    } else {
+        displayFlashMessage(`Added ${result.data.title} to <a href="/lists/${listId}">list</a>`, 'success');
+    }
+}
+
 if ($bookListBooks) {
     $bookListBooks.on('click', '.fa-circle-xmark', removeBook);
+}
+
+if ($('.add-list')) {
+    $('.add-list').on('click', '.add-existing', addBookToList);
 }

@@ -5,7 +5,7 @@ async function performSearch(searchTerm) {
     $resultsDisplay.hide();
     $('#search-loading').show();
 
-    searchResults = await axios.get(`/search/${searchTerm}`)
+    searchResults = await axios.get(`/search/${searchTerm}`);
     $('#search-loading').hide();
 
     populateSearchResults(searchTerm, searchResults);
@@ -31,7 +31,7 @@ function generateResultHTML(workResult) {
     const coverURL = workResult['cover_url'];
     const $cover = (coverURL != null && coverURL.length > 0) ?
             $(`<img class="cover-image" src="${coverURL}-S.jpg" />`) :
-            $('<span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>');
+            $('<span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>');
     
     const $title = $(`<span class="search-title">${workResult['title']} by ${workResult['author_name']}</span>`);
 

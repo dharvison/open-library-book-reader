@@ -188,6 +188,23 @@ def fetch_availabilty_links(olid):
 
     return availability_links
 
+
+#
+# Trending books
+#
+
+def fetch_trending_books():
+    """Fetch trending books from the last 24 hours"""
+    # This is a nice to have will make the site look better and be more useful
+
+    request_url = "https://openlibrary.org/trending/hours.json?hours=24&minimum=4&limit=12&sort_by_count=false"
+    # https://openlibrary.org/trending/new.json?minimum=3&limit=18&sort_by_count=false
+    # https://openlibrary.org/trending/popular.json?minimum=3&limit=18&sort_by_count=false
+    response = requests.get(request_url)
+    data = response.json()
+    works = data.get("works")
+    return works
+
 #
 # Helper methods
 #

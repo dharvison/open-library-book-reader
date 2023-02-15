@@ -32,6 +32,7 @@ class CreateEditBooklistForm(FlaskForm):
 
     title = StringField('Title', validators=[DataRequired()])
     blurb = TextAreaField('Description')
+    book_olid = HiddenField('book_olid')
 
 
 class CreateEditNoteForm(FlaskForm):

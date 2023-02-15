@@ -6,10 +6,11 @@ from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Book, BookNote, BookList
 from forms import UserRegisterForm, UserEditForm, LoginForm, CreateEditBooklistForm, CreateEditNoteForm
-from open_library import keyword_search, fetch_availabilty_links
+from open_library import keyword_search, fetch_availabilty_links, fetch_trending_books
 from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
+MUST_BE_LOGGED_IN = "You must be signed in to access that page!"
 
 app = Flask(__name__)
 
@@ -146,7 +147,7 @@ def show_profile():
     """Show logged in user profile"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     return render_template("/users/profile.html", user_id=g.user.id)
@@ -157,7 +158,7 @@ def edit_profile():
     """Edit logged in user profile"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     profile_form = UserEditForm(obj=g.user)
@@ -193,10 +194,19 @@ def create_booklist():
     """Create Booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
-    list_form = CreateEditBooklistForm()
+    if request.method == "GET":
+        book_olid = request.args.get("bookid")
+
+        if book_olid is not None:
+            list_form = CreateEditBooklistForm(data={"book_olid": book_olid})
+        else:
+            list_form = CreateEditBooklistForm()
+    else:
+        list_form = CreateEditBooklistForm()
+
     if list_form.validate_on_submit():
         new_list = BookList()
         new_list.user_id = g.user.id
@@ -204,6 +214,17 @@ def create_booklist():
 
         db.session.add(new_list)
         db.session.commit()
+
+        olid = list_form.book_olid.data
+        print(olid)
+        if olid is not None:
+            book = Book.query.filter_by(olid=olid).first()
+            if book is None:
+                # add the book!
+                book = Book.create_book(olid, None)
+                db.session.commit()
+            new_list.books.append(book)
+            db.session.commit()
 
         return redirect(url_for("show_booklist", list_id=new_list.id))
     
@@ -223,7 +244,7 @@ def add_books_booklist(list_id):
     """Add Books to Booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     add_list = BookList.query.get_or_404(list_id)
@@ -255,7 +276,7 @@ def add_books_booklist(list_id):
 
             return jsonify(book_record.to_dict())
 
-        return jsonify({ # TODO errors?
+        return jsonify({
             "err": f"Failed to find {work_id}",
             "type": "danger",
             })
@@ -267,7 +288,7 @@ def remove_books_booklist(list_id):
     """Remove Books from Booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     remove_list = BookList.query.get_or_404(list_id)
@@ -303,7 +324,7 @@ def edit_booklist(list_id):
     """Edit Booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     edit_list = BookList.query.get_or_404(list_id)
@@ -326,7 +347,7 @@ def delete_booklist(list_id):
     """Delete the list"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     delete_list = BookList.query.get_or_404(list_id)
@@ -345,7 +366,7 @@ def show_read_books():
     """Pseudo list which shows the books the logged in user has read"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     read_list = [note.book for note in g.user.notes if note.read == True]
@@ -362,7 +383,7 @@ def show_book(book_id):
     """Display the Book"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
 
     book = Book.query.get_or_404(book_id)
@@ -382,7 +403,7 @@ def create_note():
     """Create BookNote"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     if request.method == "GET":
@@ -428,7 +449,7 @@ def search_create_note():
     """Search for a book to create a note for"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     return render_template("/booknotes/search-note.html")
@@ -450,7 +471,7 @@ def edit_note(note_id):
     """Edit BookNote"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     edit_note = BookNote.query.get_or_404(note_id)
@@ -473,7 +494,7 @@ def delete_note(note_id):
     """Delete the BookNote"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash(MUST_BE_LOGGED_IN, "danger")
         return redirect("/")
     
     delete_note = BookNote.query.get_or_404(note_id)
@@ -501,10 +522,21 @@ def do_search_json(term):
 
 @app.route('/search')
 def do_search():
-    """Keyword search""" #TODO remove?
+    """Keyword search"""
 
     term = request.args.get("term")
     json = keyword_search(term)
 
     return render_template("search/search.html", term=term, results=json)
 
+
+#
+# Trending
+#
+
+@app.route('/trending')
+def fetch_trending_new():
+    """Get recently trending books for homepage"""
+    # main page with trending and cards, possibly a link to browse trending?
+    # should use ajax, this is slow!
+    return jsonify(fetch_trending_books()) # TODO

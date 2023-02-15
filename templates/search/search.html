@@ -10,24 +10,28 @@
     <div id="search-results-display" class="col-md-10 col-lg-8">
         <h2>Showing {{ results.num_returned }} of {{ results.total }} results for "{{ term }}"</h2>
         <div id="search-results">
-            {% for w in results.works %}
-                <div class="search-result">
-                    {% if w.cover_url is not none and w.cover_url|length > 0 %}
-                        <img class="cover-image" src="{{ w.cover_url }}-S.jpg" alt="{{ w.title }}"/>
+            {% for book in results.works %}
+                <div class="search-result" data-olid="{{ book.olid }}">
+                    {% if book.cover_url is not none and book.cover_url|length > 0 %}
+                        <img class="cover-image" src="{{ book.cover_url }}-S.jpg" alt="{{ book.title }}"/>
                     {% else %}
-                        <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
+                        <span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
                     {% endif %}
 
-                    {% if w.book_url|length > 0 %}
-                        <a href="{{ w.book_url }}" target="_blank">{{ w.title }}</a> by {{ w.author_name }}
+                    {% if book.book_url|length > 0 %}
+                        <a href="{{ book.book_url }}" target="_blank">{{ book.title }}</a> by {{ book.author_name }}
                     {% else %}
-                        {{ w.title }} by {{ w.author_name }}
+                        {{ book.title }} by {{ book.author_name }}
                     {% endif %}
 
                     {% if g.user is not none %}
-                        <a href="/notes/create?bookid={{ w.olid }}" class="btn btn-outline-primary btn-sm ml-2">Add Note</a>
-                        <a href="#TODO" class="btn btn-outline-primary btn-sm ml-1">Add to List</a>
-                        MAYBE A DROPDOWN? Add...
+                        <a href="/notes/create?bookid={{ book.olid }}" class="btn btn-outline-primary btn-sm ml-2">Add Note</a>
+                        <a href="#" id="toggle-{{book.olid}}" 
+                            class="btn btn-outline-primary dropdown-toggle btn-sm ml-1"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Add to List
+                        </a>
+                        {% include '/booklists/_booklist-dropdown.html' %}
                     {% endif %}
                 </div>
             {% endfor%}
