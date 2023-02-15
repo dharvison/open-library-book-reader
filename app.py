@@ -129,13 +129,9 @@ def logout():
 
 @app.route('/')
 def home():
-    """If authenticated, show list home. Otherwise prompt to sign up"""
+    """Show Home Page"""
 
-    if g.user:
-        return render_template('index.html')
-
-    else:
-        return render_template('anon-index.html')
+    return render_template('index.html')
 
 
 #

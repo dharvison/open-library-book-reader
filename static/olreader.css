@@ -3,7 +3,7 @@
     margin-bottom: 1rem;
 }
 
-.form-group, h3 {
+.form-group {
     margin-top: 1rem;
 }
 
@@ -30,4 +30,8 @@
 
 .empty-list-msg {
     margin-top: 1rem;
+}
+
+.info-card {
+    height: 18rem;
 }

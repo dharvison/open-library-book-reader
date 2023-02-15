@@ -74,10 +74,10 @@ async function addBookToList(evt) {
     }
 }
 
-if ($bookListBooks) {
+if ($bookListBooks.length) {
     $bookListBooks.on('click', '.fa-circle-xmark', removeBook);
 }
 
-if ($('.add-list')) {
+if ($('.add-list').length) {
     $('.add-list').on('click', '.add-existing', addBookToList);
 }

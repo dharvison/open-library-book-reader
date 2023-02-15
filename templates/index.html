@@ -4,18 +4,8 @@
 
 {% block content %}
 
-<div class="row justify-content-md-center">
-  <div class="col-md-10 col-lg-8">
-    <h2 class="welcome">Welcome {{ g.user.username }}!</h2>
-    <a href="/lists/create" class="btn btn-primary mt-3">Create a list!</a>
-  </div>
-</div>
+{% include '/users/_user-welcome.html' %}
 
-<div class="row justify-content-md-center my-2">
-  <div class="col-md-12 col-lg-10">
-    {% include '/search/_search-loading.html' %}
-    <div id="trending-books" class="row justify-content-md-center"></div>
-  </div>
-</div>
+{% include '/books/_trending.html' %}
 
 {% endblock %}

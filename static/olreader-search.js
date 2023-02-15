@@ -56,7 +56,7 @@ function generateResultHTML(workResult) {
     return $div;
 }
 
-if($bookSearch) {
+if($bookSearch.length) {
     $bookSearch.on('submit', (evt) => {
         evt.preventDefault();
 

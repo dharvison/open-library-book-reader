@@ -1,0 +1,44 @@
+<div class="row justify-content-md-center">
+    
+    {% if g.user %}
+    <div class="col-md-6 col-lg-4 p-2">
+            <h2 class="welcome">Welcome {{ g.user.username }}!</h2>
+    {% else %}
+    <div class="col-md-7 col-lg-6 col-xl-5 p-2">
+            <h2 class="join-message"><a href="/signup" class="btn btn-primary btn-lg">Sign up</a> for OLReader today!</h2>
+    {% endif %}
+    </div>
+    
+    <div class="row justify-content-md-center">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/static/images/to-do-list-g0ba5039d7_640x480.webp" class="card-img-top" alt="Create a list!">
+                <div class="card-body">
+                    <h3 class="card-title">Getting Started</h3>
+                    <p>Easily keep track of books you've read or want to read!</p>
+                    <p><a href="/lists/create" class="btn btn-primary btn-sm">Create a list</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/static/images/books-g09edeedb4_640x480.webp" class="card-img-top" alt="Find some books.">
+                <div class="card-body">
+                    <h3 class="card-title">Next Steps</h3>
+                    <p>Search for books using the search bar above or browse <a href="#TRENDING" class="link-primary">Trending Books</a>.</p>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/static/images/pen-g72308d7a7_640x480.webp" class="card-img-top" alt="Take note!">
+                <div class="card-body">
+                    <h3 class="card-title">Take Notes</h3>
+                    <p>Jot down some notes on books you've read or want to read.</p>
+                    <p><a href="/notes/create/search" class="btn btn-primary btn-sm">Create a note</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
