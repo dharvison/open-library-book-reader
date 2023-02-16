@@ -144,7 +144,7 @@ def show_profile():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     return render_template("/users/profile.html", user_id=g.user.id)
 
@@ -155,7 +155,7 @@ def edit_profile():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     profile_form = UserEditForm(obj=g.user)
     if profile_form.validate_on_submit():
@@ -191,7 +191,7 @@ def create_booklist():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     if request.method == "GET":
         book_olid = request.args.get("bookid")
@@ -241,7 +241,7 @@ def add_books_booklist(list_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     add_list = BookList.query.get_or_404(list_id)
     if add_list.user_id != g.user.id:
@@ -285,7 +285,7 @@ def remove_books_booklist(list_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     remove_list = BookList.query.get_or_404(list_id)
     if remove_list.user_id != g.user.id:
@@ -321,7 +321,7 @@ def edit_booklist(list_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     edit_list = BookList.query.get_or_404(list_id)
     if edit_list.user_id != g.user.id:
@@ -344,7 +344,7 @@ def delete_booklist(list_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     delete_list = BookList.query.get_or_404(list_id)
     if delete_list.user_id != g.user.id:
@@ -363,7 +363,7 @@ def show_read_books():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     read_list = [note.book for note in g.user.notes if note.read == True]
 
@@ -380,7 +380,7 @@ def show_book(book_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
 
     book = Book.query.get_or_404(book_id)
     note = BookNote.query.filter_by(user_id=g.user.id).filter_by(book_olid=book.olid).first()
@@ -400,7 +400,7 @@ def create_note():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     if request.method == "GET":
         book_olid = request.args.get("bookid")
@@ -446,7 +446,7 @@ def search_create_note():
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     return render_template("/booknotes/search-note.html")
 
@@ -468,7 +468,7 @@ def edit_note(note_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     edit_note = BookNote.query.get_or_404(note_id)
     if edit_note.user_id != g.user.id:
@@ -491,7 +491,7 @@ def delete_note(note_id):
 
     if not g.user:
         flash(MUST_BE_LOGGED_IN, "danger")
-        return redirect("/")
+        return redirect(url_for("login"))
     
     delete_note = BookNote.query.get_or_404(note_id)
     if delete_note.user_id != g.user.id:
@@ -529,10 +529,26 @@ def do_search():
 #
 # Trending
 #
-
 @app.route('/trending')
-def fetch_trending_new():
-    """Get recently trending books for homepage"""
-    # main page with trending and cards, possibly a link to browse trending?
-    # should use ajax, this is slow!
-    return jsonify(fetch_trending_books()) # TODO
+def show_trending():
+    """Show trending books page"""
+
+    return render_template("books/trending.html")
+
+
+@app.route('/trending/fetch')
+def fetch_trending():
+    """Get trending books"""
+    
+    trending_type = request.args.get("type")
+
+    trending_books = fetch_trending_books(trending_type)
+    lists = []
+
+    if g.user:
+        lists = [{"listId": user_list.id, "listTitle": user_list.title} for user_list in g.user.lists]
+
+    return jsonify({
+        "user_lists": lists,
+        "trending_books": trending_books,
+    })

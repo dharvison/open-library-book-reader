@@ -21,7 +21,7 @@ function addToBooklist(book) {
         const $div = $('<div class="list-book"></div')
         const $cover = (book.cover_url != null && book.cover_url.length > 0) ?
             $(`<img class="cover-image" src="${book.cover_url}-S.jpg" />`) :
-            $('<span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>');
+            $('<span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>');
         const $title = $(`<span class="book-title"><a href="/books/${book.olid}">${book.title}</a> by ${book.author} <a href="#" class="link-danger" data-id="${book.olid}" title="Remove"><i class="fa-regular fa-circle-xmark"></i></span>`);
         $div.append($cover);
         $div.append($title);

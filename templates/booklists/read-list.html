@@ -17,7 +17,7 @@
                         {% if book.cover_url is not none and book.cover_url|length > 0 %}
                             <img class="cover-image" src="{{ book.cover_url }}-S.jpg" />
                         {% else %}
-                            <span class="cover-text fa-3x"><i class="fa-solid fa-book-bookmark"></i></span>
+                            <span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
                         {% endif %}
                         <span class="book-title">
                             <a href="/books/{{ book.olid }}">{{ book.title }}</a> by {{ book.author }} 

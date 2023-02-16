@@ -6,7 +6,8 @@
         {% if book.cover_url is not none and book.cover_url|length > 0 %}
             <img class="my-3" src="{{ book.cover_url }}-M.jpg" alt="cover"/>
         {% else %}
-            <span class="cover-text fa-5x my-3 text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
+            <!-- <span class="cover-text fa-5x my-3 text-primary"><i class="fa-solid fa-book-bookmark"></i></span> -->
+            <img class="my-3" src="/static/images/blank_cover-M.webp" alt="cover">
         {% endif %}
     </div>
 
