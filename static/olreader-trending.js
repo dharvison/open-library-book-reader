@@ -33,19 +33,7 @@ function trendingButtonHTML(href, text, btnStyle, targetBlank) {
 
 function createAddListDropdown(olid, userLists) {
     const $listDiv = $('<div class="d-grid gap-2 col-10 mx-auto"></div');
-    $listDiv.append($(`<a href="#" id="toggle-${olid}" class="btn btn-primary dropdown-toggle ml-1" role="button" data-bs-toggle="dropdown" aria-expanded="false">Add to List</a>`));
-
-    const $dropdown = $(`<ul class="dropdown-menu add-list" aria-labelledby="toggle-${olid}" data-olid="${olid}"></ul>`);
-    $dropdown.append($(`<li><a class="dropdown-item" href="/lists/create?bookid=${olid}">Create New List</a></li>`));
-    if (userLists != null && userLists.length > 0) {
-        $dropdown.append($('<li><hr class="dropdown-divider"></li>'));
-    }
-    for (bl of userLists) {
-        const $list = $(`<li><a class="dropdown-item add-existing" data-listid="${bl.listId}" href="#">${bl.listTitle}</a></li>`);
-        $list.click(addBookToList);
-        $dropdown.append($list);
-    }
-    $listDiv.append($dropdown);
+    createAddListDropdownHTML($listDiv, olid, userLists);
 
     const $listGroup = $('<li class="list-group-item"></li>');
     $listGroup.append($listDiv);
@@ -67,8 +55,8 @@ if ($('#trending-recent').length) {
     loadTrending('recent', $('#trending-recent'));
 }
 
-if ($('#trending-new').length) {
-    loadTrending('new', $('#trending-new'));
+if ($('#trending-monthly').length) {
+    loadTrending('monthly', $('#trending-monthly'));
 }
 
 if ($('#trending-popular').length) {

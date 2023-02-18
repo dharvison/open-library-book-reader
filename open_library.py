@@ -198,8 +198,8 @@ def fetch_trending_books(trending_type, min=4, limit=12):
 
     # default to "recent"
     request_url = f"https://openlibrary.org/trending/hours.json?hours=24&minimum={min}&limit={limit}&sort_by_count=false"
-    if trending_type == "new":
-        request_url = f"https://openlibrary.org/trending/new.json?minimum={min}&limit={limit}&sort_by_count=false"
+    if trending_type == "monthly":
+        request_url = f"https://openlibrary.org/trending/monthly.json?minimum={min}&limit={limit}&sort_by_count=false"
     elif trending_type == "popular":
         request_url = f"https://openlibrary.org/trending/popular.json?minimum={min}&limit={limit}&sort_by_count=false"
 

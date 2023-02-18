@@ -2,7 +2,7 @@
     
     {% if g.user %}
     <div class="col-md-6 col-lg-4 p-2">
-            <h2 class="welcome">Welcome {{ g.user.username }}!</h2>
+            <h2 class="welcome">Welcome <a href="/profile" class="link-dark link-title">{{ g.user.username }}</a>!</h2>
     {% else %}
     <div class="col-md-7 col-lg-6 col-xl-5 p-2">
             <h2 class="join-message"><a href="/signup" class="btn btn-primary btn-lg">Sign up</a> for OLReader today!</h2>
@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <h3 class="card-title">Getting Started</h3>
                     <p>Easily keep track of books you've read or want to read!</p>
-                    <p><a href="/lists/create" class="btn btn-primary btn-sm">Create a list</a></p>
+                    <p><a href="/lists/create" class="btn btn-primary">Create a list</a></p>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <h3 class="card-title">Take Notes</h3>
                     <p>Jot down some notes on books you've read or want to read.</p>
-                    <p><a href="/notes/create/search" class="btn btn-primary btn-sm">Create a note</a></p>
+                    <p><a href="/notes/create/search" class="btn btn-primary">Create a note</a></p>
                 </div>
             </div>
         </div>

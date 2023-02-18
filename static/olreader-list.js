@@ -1,4 +1,5 @@
 const $bookListBooks = $('#booklist-books');
+const $createListModel = $('#createListModal');
 
 async function addBook(evt) {
     const workId = $(evt.target).data('id');
@@ -8,8 +9,7 @@ async function addBook(evt) {
     
     if (result.data['err'] != null) {
         const {err, type} = result.data;
-        console.log(err, type);
-        displayFlashMessage(err, type);
+        displayErrMsg(err, type);
     } else {
         addToBooklist(result.data);
     }
@@ -17,7 +17,7 @@ async function addBook(evt) {
 
 function addToBooklist(book) {
     if ($bookListBooks) {
-        $bookListBooks.children('#empty-list-msg').hide();
+        $bookListBooks.children('.empty-list-msg').hide();
         const $div = $('<div class="list-book"></div')
         const $cover = (book.cover_url != null && book.cover_url.length > 0) ?
             $(`<img class="cover-image" src="${book.cover_url}-S.jpg" />`) :
@@ -37,8 +37,7 @@ async function removeBook(evt) {
     
     if (result.data['err'] != null) {
         const {err, type} = result.data;
-        console.log(err, type);
-        displayFlashMessage(err, type);
+        displayErrMsg(err, type);
     } else {
         $link.closest(".list-book").remove();
     }
@@ -51,8 +50,7 @@ async function addNote(evt) {
     
     if (result.data['err'] != null) {
         const {err, type} = result.data;
-        console.log(err, type);
-        displayFlashMessage(err, type);
+        displayErrMsg(err, type);
     } else {
         addToBooklist(result.data);
     }
@@ -67,8 +65,7 @@ async function addBookToList(evt) {
     
     if (result.data['err'] != null) {
         const {err, type} = result.data;
-        console.log(err, type);
-        displayFlashMessage(err, type);
+        displayErrMsg(err, type);
     } else {
         displayFlashMessage(`Added ${result.data.title} to <a href="/lists/${listId}">list</a>`, 'success');
     }
@@ -80,4 +77,8 @@ if ($bookListBooks.length) {
 
 if ($('.add-list').length) {
     $('.add-list').on('click', '.add-existing', addBookToList);
+}
+
+if ($createListModel.length) {
+    console.log('modal is here!');
 }

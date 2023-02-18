@@ -7,35 +7,43 @@
 {% block content %}
 
 <div class="row justify-content-md-center">
-    <div id="search-results-display" class="col-md-10 col-lg-8">
-        <h2>Showing {{ results.num_returned }} of {{ results.total }} results for "{{ term }}"</h2>
-        <div id="search-results">
-            {% for book in results.works %}
-                <div class="search-result" data-olid="{{ book.olid }}">
-                    {% if book.cover_url is not none and book.cover_url|length > 0 %}
-                        <img class="cover-image" src="{{ book.cover_url }}-S.jpg" alt="{{ book.title }}"/>
-                    {% else %}
-                        <span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
-                    {% endif %}
+    {% include 'booklists/_create-list-modal.html' %}
+    <div id="search-results-display" class="col-md-10 col-lg-8" data-global="true">
+        {% if term|length > 0 %}
+            <h2><span id="search-results-count" data-initial-count="{{ results.num_returned }}">Showing {{ results.num_returned }} of {{ results.total }} results</span> for "{{ term }}"</h2>
+            <div id="search-results">
+                {% for book in results.works %}
+                    <div class="search-result" data-olid="{{ book.olid }}">
+                        {% if book.cover_url is not none and book.cover_url|length > 0 %}
+                            <img class="cover-image" src="{{ book.cover_url }}-S.jpg" alt="{{ book.title }}"/>
+                        {% else %}
+                            <span class="cover-text fa-3x text-primary"><i class="fa-solid fa-book-bookmark"></i></span>
+                        {% endif %}
 
-                    {% if book.book_url|length > 0 %}
-                        <a href="{{ book.book_url }}" target="_blank">{{ book.title }}</a> by {{ book.author_name }}
-                    {% else %}
-                        {{ book.title }} by {{ book.author_name }}
-                    {% endif %}
+                        {% if book.book_url|length > 0 %}
+                            <a href="{{ book.book_url }}" target="_blank">{{ book.title }}</a> by {{ book.author_name }}
+                        {% else %}
+                            {{ book.title }} by {{ book.author_name }}
+                        {% endif %}
 
-                    {% if g.user is not none %}
-                        <a href="/notes/create?bookid={{ book.olid }}" class="btn btn-outline-primary btn-sm ml-2">Add Note</a>
-                        <a href="#" id="toggle-{{book.olid}}" 
-                            class="btn btn-outline-primary dropdown-toggle btn-sm ml-1"
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Add to List
-                        </a>
-                        {% include '/booklists/_booklist-dropdown.html' %}
-                    {% endif %}
-                </div>
-            {% endfor%}
-        </div>
+                        {% if g.user is not none %}
+                            <a href="/notes/create?bookid={{ book.olid }}" class="btn btn-outline-primary btn-sm ml-2">Add Note</a>
+                            <a href="#" id="toggle-{{book.olid}}" 
+                                class="btn btn-outline-primary dropdown-toggle btn-sm ml-1"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Add to List
+                            </a>
+                            {% include '/booklists/_booklist-dropdown.html' %}
+                        {% endif %}
+                    </div>
+                {% endfor%}
+            </div>
+            <button id="search-load-more" type="button" data-search-term="{{ term }}" class="btn btn-primary mt-3">
+                Load More
+            </button>
+        {% else %}
+            <h2>A search term is required!</h2>
+        {% endif %}
     </div>
 </div>
 

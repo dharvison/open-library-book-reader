@@ -19,7 +19,7 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
     
-    <nav class="navbar navbar-expand-md bg-primary">
+    <nav class="navbar navbar-expand-md sticky-top bg-primary">
         <div class="container-fluid d-flex">
           <a class="navbar-brand link-secondary" href="/">
             <i class="fa-solid fa-book-atlas"></i>
@@ -54,13 +54,13 @@
             <ul class="navbar-nav ms-auto d-flex">
                 {% if not g.user %}
                 <li class="nav-item">
-                    <a class="nav-link link-secondary" href="/signup">Sign up</a>
+                    <a class="nav-link link-secondary text-nowrap" href="/signup">Sign up</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link link-secondary" href="/login">Log in</a>
+                    <a class="nav-link link-secondary text-nowrap" href="/login">Log in</a>
                 </li>
                 {% else %}
-                <li class="nav-item dropdown">
+                <!-- <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle link-secondary" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-book-open-reader"></i>
                     <span class="username">{{ g.user.username }}</span>
@@ -69,16 +69,16 @@
                     <li><a class="dropdown-item" href="/profile">Profile</a></li>
                     <li><a class="dropdown-item" href="/logout">Log out</a></li>
                   </ul>
-                </li>
+                </li> -->
 
-                <!-- <li class="nav-item">
-                  <a class="nav-link link-secondary" href="/profile">
+                <li class="nav-item">
+                  <a class="nav-link link-secondary text-nowrap" href="/profile">
                     <i class="fa-solid fa-book-open-reader"></i>
                     <span class="username">{{ g.user.username }}</span>
                   </a>
-                <li class="nav-item">
+                <li class="nav-item text-nowrap">
                     <a class="nav-link link-secondary" href="/logout">Log out</a>
-                </li> -->
+                </li>
                 {% endif %}
             </ul>
           </div>

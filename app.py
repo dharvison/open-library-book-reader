@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Book, BookNote, BookList
 from forms import UserRegisterForm, UserEditForm, LoginForm, CreateEditBooklistForm, CreateEditNoteForm
-from open_library import keyword_search, fetch_availabilty_links, fetch_trending_books
+from open_library import keyword_search, fetch_availabilty_links, fetch_trending_books, fetch_book_data
 from seed import seed_data
 
 CUR_USER_KEY = "cur_user"
@@ -357,7 +357,7 @@ def delete_booklist(list_id):
     return redirect(url_for("show_profile"))
 
 
-@app.route('/lists/booksread')
+@app.route('/lists/read')
 def show_read_books():
     """Pseudo list which shows the books the logged in user has read"""
 
@@ -435,9 +435,12 @@ def create_note():
 
         return redirect(url_for("show_note", note_id=new_note.id))
     
-    note_form.book_olid = request.args.get("bookid")
+    book_olid = request.args.get("bookid")
+    note_form.book_olid = book_olid
+    book_preview = fetch_book_data(book_olid)
+    book_preview["olid"] = book_olid
 
-    return render_template("/booknotes/create-note.html", form=note_form)
+    return render_template("/booknotes/create-note.html", form=note_form, book_preview=book_preview)
 
 
 @app.route('/notes/create/search')
@@ -512,16 +515,25 @@ def delete_note(note_id):
 def do_search_json(term):
     """Keyword search"""
 
-    json = keyword_search(term)
+    page = request.args.get("page", 1)
+    results = keyword_search(term, page=page)
 
-    return jsonify(json)
+    if g.user:
+        lists = [{"listId": user_list.id, "listTitle": user_list.title} for user_list in g.user.lists]
+
+    return jsonify({
+        "user_lists": lists,
+        "results": results,
+    })
+
 
 @app.route('/search')
 def do_search():
     """Keyword search"""
 
     term = request.args.get("term")
-    json = keyword_search(term)
+    page = request.args.get("page", 1)
+    json = keyword_search(term, page=page)
 
     return render_template("search/search.html", term=term, results=json)
 

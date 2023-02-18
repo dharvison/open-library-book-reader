@@ -1,10 +1,9 @@
 <div class="card">
     <div class="card-body">
-        <h2 class="card-title"><a href="/lists/{{ booklist.id }}" class="link-dark link-title">{{ booklist.title }}</a>
+        <h2 class="card-title"><a href="/lists/{{ booklist.id }}" class="link-dark link-title">{{ booklist.title }}</a></h2>
         {% if booklist.user_id == g.user.id %}
             <a class="btn btn-outline-primary btn-sm mb-2" href="/lists/{{ booklist.id }}/edit">Edit</a>
         {% endif %}
-        </h2>
 
         <p>{{ booklist.blurb }}</p>
 
