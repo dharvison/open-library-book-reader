@@ -51,6 +51,14 @@ async function loadTrending(type, $trendingDiv) {
     $trendingDiv.find('#search-loading').hide();
 }
 
+if ($('#trending-accordion').length) {
+    $('.accordion-item').on('click', '.create-list', storeOLID);
+}
+
+if ($('#trending-solo').length) {
+    $('#trending-solo').on('click', '.create-list', storeOLID);
+}
+
 if ($('#trending-recent').length) {
     loadTrending('recent', $('#trending-recent'));
 }

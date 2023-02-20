@@ -15,7 +15,13 @@ function createAddListDropdownHTML($container, olid, userLists, btnStyle='btn-pr
     $container.append($(`<a href="#" id="toggle-${olid}" class="btn ${btnStyle} dropdown-toggle ml-1" role="button" data-bs-toggle="dropdown" aria-expanded="false">Add to List</a>`));
 
     const $dropdown = $(`<ul class="dropdown-menu add-list" aria-labelledby="toggle-${olid}" data-olid="${olid}"></ul>`);
-    $dropdown.append($(`<li><a class="dropdown-item" href="/lists/create?bookid=${olid}">Create New List</a></li>`));
+
+    if ($('#createListModal').length) {
+        const createModelButton = $(`<li><a class="dropdown-item create-list" data-bs-toggle="modal" data-bs-target="#createListModal">Create New List</a></li>`);
+        $dropdown.append(createModelButton);
+    } else {
+        $dropdown.append($(`<li><a class="dropdown-item" href="/lists/create?bookid=${olid}">Create New List</a></li>`));
+    }
     if (userLists != null && userLists.length > 0) {
         $dropdown.append($('<li><hr class="dropdown-divider"></li>'));
     }

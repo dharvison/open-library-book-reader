@@ -93,6 +93,10 @@ if ($bookSearch.length) {
     })
 }
 
+if ($resultsDisplay.length) {
+    $resultsDisplay.on('click', '.create-list', storeOLID);
+}
+
 if ($('#search-load-more').length) {
     $('#search-load-more').click((evt) => {
         evt.preventDefault();

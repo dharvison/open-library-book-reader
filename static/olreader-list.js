@@ -1,5 +1,12 @@
 const $bookListBooks = $('#booklist-books');
-const $createListModel = $('#createListModal');
+const $createListModal = $('#createListModal');
+
+let olidToAdd = null;
+// stores the OLID that will be added to a list
+function storeOLID(evt) {
+    olidToAdd = $(evt.target).closest('.add-list').data('olid');
+    console.log(olidToAdd)
+}
 
 async function addBook(evt) {
     const workId = $(evt.target).data('id');
@@ -71,6 +78,27 @@ async function addBookToList(evt) {
     }
 }
 
+async function createListFromModal(evt) {
+    const title = $createListModal.find('#title').val();
+    const blurb = $createListModal.find('#blurb').val();
+    const olid = olidToAdd;
+
+    const result = await axios.post('/lists/createlist', {title, blurb, olid});
+
+    if (result.data['err'] != null) {
+        const {err, type} = result.data;
+        displayErrMsg(err, type);
+    } else {
+        displayFlashMessage(`Created <a href="/lists/${result.data.listId}">${result.data.listTitle}</a>`, "success");
+    }
+
+    // Reset!
+    olidToAdd = null;
+    $createListModal.find('#title').val('');
+    $createListModal.find('#blurb').val('');
+    $createListModal.modal('hide');
+}
+
 if ($bookListBooks.length) {
     $bookListBooks.on('click', '.fa-circle-xmark', removeBook);
 }
@@ -79,6 +107,6 @@ if ($('.add-list').length) {
     $('.add-list').on('click', '.add-existing', addBookToList);
 }
 
-if ($createListModel.length) {
-    console.log('modal is here!');
+if ($createListModal.length) {
+    $createListModal.find('#createListModalSubmit').click(createListFromModal)
 }

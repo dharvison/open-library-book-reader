@@ -1,5 +1,5 @@
 <ul class="dropdown-menu add-list" aria-labelledby="toggle-{{book.olid}}" data-olid="{{ book.olid }}">
-    <li><a class="dropdown-item" href="/lists/create?bookid={{ book.olid }}">Create New List</a></li>
+    <li><a class="dropdown-item create-list" data-bs-toggle="modal" data-bs-target="#createListModal">Create New List</a></li>
     {% if g.user.lists|length > 0 %}
         <li><hr class="dropdown-divider"></li>
     {% endif %}

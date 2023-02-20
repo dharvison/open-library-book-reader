@@ -165,6 +165,17 @@ class BookList(db.Model):
     books = db.relationship("Book", secondary="booklist_books", backref="lists")
     user = db.relationship("User", backref="lists")
 
+    def add_olid(self, olid):
+        """Add the book from olid to the list, create if it doesn't exist"""
+
+        book = Book.query.filter_by(olid=olid).first()
+        if book is None:
+            # add the book!
+            book = Book.create_book(olid, None)
+            db.session.commit()
+        self.books.append(book)
+        db.session.commit()
+
 
 class BookListBooks(db.Model):
     """Booklist and book relations"""

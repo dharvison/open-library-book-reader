@@ -212,19 +212,50 @@ def create_booklist():
         db.session.commit()
 
         olid = list_form.book_olid.data
-        print(olid)
-        if olid is not None:
-            book = Book.query.filter_by(olid=olid).first()
-            if book is None:
-                # add the book!
-                book = Book.create_book(olid, None)
-                db.session.commit()
-            new_list.books.append(book)
-            db.session.commit()
+        if olid is not None and len(olid) > 0:
+            new_list.add_olid(olid)
 
         return redirect(url_for("show_booklist", list_id=new_list.id))
     
     return render_template("/booklists/create-list.html", form=list_form)
+
+
+@app.route('/lists/createlist', methods=['POST'])
+def create_booklist_json():
+    """Create Booklist from JSON object"""
+
+    if not g.user:
+        return jsonify({
+                "err": MUST_BE_LOGGED_IN,
+                "type": "danger",
+                })
+
+    title = request.json.get("title")
+    blurb = request.json.get("blurb")
+    olid = request.json.get("olid")
+
+    if (title is not None and len(title) > 0):
+        new_list = BookList()
+        new_list.user_id = g.user.id
+        new_list.title = title
+        new_list.blurb = blurb
+
+        db.session.add(new_list)
+        db.session.commit()
+        
+        if olid is not None and len(olid) > 0:
+            new_list.add_olid(olid)
+    else:
+        return jsonify({
+                "err": f"Title is required!",
+                "type": "danger",
+                })
+    
+    return jsonify({
+            "msg": "List Created!",
+            "listId": new_list.id,
+            "listTitle": new_list.title,
+        })
 
 
 @app.route('/lists/<int:list_id>')
