@@ -3,29 +3,35 @@
 User
 -
 id PK serial
+email text
 username text
 password hash
 bio text
-picture url
+is_admin boolean
 
 Booklist
 -
 id PK serial
 user_id FK >- User.id
+title text
 blurb text
-books list(ISBN) FK >- Book.isbn
+
+BooklistBooks
+-
+booklist FK >-< Booklist.id
+book_olid FK >-< Book.olid
 
 Book
 -
-isbn PK
+olid PK
+isbn
 title
 author
 cover_url
-genre
 
 BookNotes
 -
 user_id FK >- User.id
-isbn FK >- Book.isbn
+book_olid FK >- Book.olid
 read boolean
 note text
