@@ -29,7 +29,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 
 with app.app_context():
     connect_db(app)
-    seed_data(db)
+    # seed_data(db)
 
 #
 # User actions
