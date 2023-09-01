@@ -7,6 +7,7 @@
 
 import os
 from unittest import TestCase
+from unittest.mock import patch
 from sqlalchemy import exc
 
 from models import db, Book
@@ -127,9 +128,21 @@ class BookModelTestCase(TestCase):
 
             # Book data should match
             self.assertDictEqual(b1.to_dict(), book_dict)
-    
+
     def test_create_book(self):
         """test creation of book from olid and isbn"""
-        # TODO requires mock
 
-        raise(Exception('implement me!'))
+        with app.app_context():
+            with patch("models.fetch_book_data") as mock_fetch:
+                # importing this makes it models.fetch_book_data instead of open_library.fetch_book_data
+                mock_fetch.return_value = {
+                    "title": "Sample Book to Add",
+                    "authors": ["Sample Author"],
+                    "cover_url": "https://covers.openlibrary.org/b/olid/OL26992991M",
+                }
+                
+                new_book = Book.create_book("OL26892991M", "1234567890123")
+                mock_fetch.assert_called_once()
+                
+                book = Book.query.get("OL26892991M")
+                self.assertEqual(new_book.olid, book.olid)

@@ -7,6 +7,7 @@
 
 import os
 from unittest import TestCase
+from unittest.mock import patch
 from sqlalchemy import exc
 
 from models import db, User, Book, BookList
@@ -170,7 +171,6 @@ class BookListModelTestCase(TestCase):
 
     def test_add_olid_create(self):
         """Test that adding book olid works with creation"""
-        # TODO needs a mock
 
         l1 = BookList(
             user_id=self.user_id,
@@ -186,6 +186,8 @@ class BookListModelTestCase(TestCase):
             self.assertEqual(len(l1.books), 0)
 
             # add test book
-            raise(Exception('implement me!'))
-            l1.add_olid("12345")
-            self.assertEqual(len(l1.books), 1)
+            with patch("models.Book.create_book") as mock_create:
+                mock_create.return_value = self.test_book2
+                l1.add_olid("AAAAAAAAA")
+                mock_create.assert_called_once()
+                self.assertEqual(len(l1.books), 1)
