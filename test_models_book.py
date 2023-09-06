@@ -144,5 +144,5 @@ class BookModelTestCase(TestCase):
                 new_book = Book.create_book("OL26892991M", "1234567890123")
                 mock_fetch.assert_called_once()
                 
-                book = Book.query.get("OL26892991M")
+                book = Book.query.filter_by(olid="OL26892991M").one()
                 self.assertEqual(new_book.olid, book.olid)

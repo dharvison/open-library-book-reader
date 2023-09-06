@@ -16,6 +16,10 @@ def seed_data(db):
     test_user.is_admin = True
     db.session.add(test_user)
 
+    test_user2 = User.signup("testuser", "test@email.com", "welcome1")
+    test_user.is_admin = False
+    db.session.add(test_user2)
+
     db.session.commit()
 
     l1 = BookList(
@@ -35,6 +39,7 @@ def seed_data(db):
     # dummy books
     b1 = Book(
         olid = "12345",
+        isbn = "12345",
         title = "Watchmen",
         author = "Alan Moore",
         cover_url = "https://covers.openlibrary.org/b/id/6459694",
@@ -42,13 +47,15 @@ def seed_data(db):
 
     b2 = Book(
         olid = "11111",
+        isbn = "11111111",
         title = "Catch-22",
         author = "Joseph Heller",
         cover_url = "https://covers.openlibrary.org/b/id/13061725",
     )
 
     b3 = Book(
-        olid = "22222",
+        olid = "OL86318W",
+        isbn = "2222221111",
         title = "Ulysses",
         author = "James Joyce",
         cover_url = "https://covers.openlibrary.org/b/id/13136659",

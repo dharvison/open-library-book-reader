@@ -40,7 +40,8 @@ def add_user_to_g():
     """If we're logged in, add cur_user to Flask global."""
 
     if CUR_USER_KEY in session:
-        g.user = User.query.get(session[CUR_USER_KEY])
+        # g.user = User.query.get(session[CUR_USER_KEY])
+        g.user = User.query.filter_by(id=session[CUR_USER_KEY]).one()
 
     else:
         g.user = None
@@ -102,7 +103,6 @@ def login():
     """Handle user login."""
 
     form = LoginForm()
-
     if form.validate_on_submit():
         user = User.authenticate(form.username.data,
                                  form.password.data)
@@ -115,26 +115,6 @@ def login():
         flash("Invalid credentials.", 'danger')
 
     return render_template('users/login.html', form=form)
-
-@app.route('/login/test', methods=["POST"])
-def login_test():
-    """Handle user login for tests."""
-
-    if request.method == 'POST':
-        print(list(request.form))
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = User.authenticate(username, password)
-
-        if user:
-            do_login(user)
-            flash(f"Hello, {user.username}!", "success")
-            return redirect("/")
-
-        flash("Invalid credentials.", 'danger')
-
-    return render_template('index.html')
-
 
 @app.route('/logout')
 def logout():
