@@ -156,7 +156,7 @@ def fetch_data(olid, data_type):
     else:
         request_url = f"{BASE_URL}/{data_type}/{olid}.json"
         
-    print(request_url)
+    # print(request_url)
 
     response = requests.get(request_url)
     # print(response.status_code)

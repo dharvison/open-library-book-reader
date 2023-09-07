@@ -197,7 +197,7 @@ class ListTest(LoggedInFormTest):
             prev_len = len(bl.books)
             book = Book.query.filter_by(olid='12345').one()
 
-            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': book.olid, 'isbn': book.isbn}, follow_redirects=True)
+            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': book.olid, 'isbn': book.isbn})
             self.assertEqual(response.status_code, 200)
             # check json
             data = json.loads(response.get_data(as_text=True))
@@ -220,7 +220,7 @@ class ListTest(LoggedInFormTest):
             prev_len = len(bl.books)
             book = Book.query.filter_by(olid='12345').one()
 
-            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': book.olid, 'isbn': book.isbn}, follow_redirects=True)
+            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': book.olid, 'isbn': book.isbn})
             self.assertEqual(response.status_code, 200)
             # check json
             data = json.loads(response.get_data(as_text=True))
@@ -239,7 +239,7 @@ class ListTest(LoggedInFormTest):
             prev_len = len(bl.books)
             book = Book.query.filter_by(olid='12345').one()
 
-            response = self.client.post(f'/lists/{bl.id}/remove', json={'workId': book.olid, 'isbn': book.isbn}, follow_redirects=True)
+            response = self.client.post(f'/lists/{bl.id}/remove', json={'workId': book.olid, 'isbn': book.isbn})
             self.assertEqual(response.status_code, 200)
             # check json
             data = json.loads(response.get_data(as_text=True))
@@ -257,7 +257,7 @@ class ListTest(LoggedInFormTest):
             cur_length = len(bl.books)
             book = Book.query.filter_by(olid='11111').one()
 
-            response = self.client.post(f'/lists/{bl.id}/remove', json={'workId': book.olid, 'isbn': book.isbn}, follow_redirects=True)
+            response = self.client.post(f'/lists/{bl.id}/remove', json={'workId': book.olid, 'isbn': book.isbn})
             self.assertEqual(response.status_code, 200)
             # check json
             data = json.loads(response.get_data(as_text=True))
@@ -278,7 +278,7 @@ class ListTest(LoggedInFormTest):
 
             bl = BookList.query.filter_by(user_id=self.user_id).first()
             prev_len = len(bl.books)
-            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': fetch_olid, 'isbn': ''}, follow_redirects=True)
+            response = self.client.post(f'/lists/{bl.id}/add', json={'workId': fetch_olid, 'isbn': ''})
             self.assertEqual(response.status_code, 200)
             # check json
             data = json.loads(response.get_data(as_text=True))
