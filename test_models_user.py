@@ -116,6 +116,7 @@ class UserModelTestCase(TestCase):
                 title="test list",
                 blurb="test blurb"
             )
+            self.assertEqual(len(u1.lists), 0)
             u1.lists.append(l1)
             db.session.commit()
 
@@ -134,6 +135,7 @@ class UserModelTestCase(TestCase):
                 read=False,
                 note="test blurb"
             )
+            self.assertEqual(len(u1.notes), 0)
             u1.notes.append(n1)
             db.session.commit()
 
